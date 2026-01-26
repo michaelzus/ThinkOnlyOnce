@@ -7,9 +7,43 @@ from langgraph.graph import END, START, StateGraph
 from think_only_once.agents.fundamental_analyst import create_fundamental_analyst
 from think_only_once.agents.investment_analyst import generate_investment_outlook
 from think_only_once.agents.news_analyst import create_news_analyst
-from think_only_once.agents.router import route_query
+from think_only_once.agents.router import RouterDecision, route_query
 from think_only_once.agents.technical_analyst import create_technical_analyst
 from think_only_once.graph.state import AnalysisState
+
+
+def print_graph_structure(graph: Any) -> None:
+    """Print the LangGraph structure to stdout.
+
+    Args:
+        graph: Compiled LangGraph workflow.
+    """
+    print("\n" + "=" * 60)
+    print("LANGGRAPH WORKFLOW STRUCTURE")
+    print("=" * 60)
+    try:
+        mermaid_syntax = graph.get_graph().draw_ascii()
+        print(mermaid_syntax)
+    except Exception as e:
+        print(f"Could not generate graph visualization: {e}")
+    print("=" * 60 + "\n")
+
+
+def print_router_decision(decision: RouterDecision) -> None:
+    """Print the router decision to stdout.
+
+    Args:
+        decision: Router decision with ticker and analysis flags.
+    """
+    print("\n" + "-" * 60)
+    print("ROUTER DECISION")
+    print("-" * 60)
+    print(f"Ticker: {decision.ticker}")
+    print(f"Run Technical Analysis: {'Yes' if decision.run_technical else 'No'}")
+    print(f"Run Fundamental Analysis: {'Yes' if decision.run_fundamental else 'No'}")
+    print(f"Run News Analysis: {'Yes' if decision.run_news else 'No'}")
+    print(f"Reasoning: {decision.reasoning}")
+    print("-" * 60 + "\n")
 
 
 class StockAnalyzerOrchestrator:
@@ -69,6 +103,7 @@ class StockAnalyzerOrchestrator:
             Dictionary with routing decisions (ticker and analysis flags).
         """
         decision = route_query(state["query"])
+        print_router_decision(decision)
         return {
             "ticker": decision.ticker,
             "run_technical": decision.run_technical,
@@ -180,8 +215,11 @@ class StockAnalyzerOrchestrator:
 """
         return {"ai_outlook": ai_outlook, "final_report": report}
 
-    def build(self) -> Any:
+    def build(self, verbose: bool = True) -> Any:
         """Build and compile the LangGraph workflow.
+
+        Args:
+            verbose: If True, prints the graph structure to stdout.
 
         Returns:
             Compiled LangGraph workflow ready for invocation.
@@ -198,15 +236,28 @@ class StockAnalyzerOrchestrator:
         workflow.add_node("aggregator", self.aggregator_node)
         workflow.add_node("investment_analyst", self.investment_analyst_node)
 
+        # Sequential: START → router
         workflow.add_edge(START, "router")
+
+        # Fan-out: router → all analysts in parallel
         workflow.add_edge("router", "technical_analyst")
-        workflow.add_edge("technical_analyst", "fundamental_analyst")
-        workflow.add_edge("fundamental_analyst", "news_analyst")
+        workflow.add_edge("router", "fundamental_analyst")
+        workflow.add_edge("router", "news_analyst")
+
+        # Fan-in: all analysts → aggregator
+        workflow.add_edge("technical_analyst", "aggregator")
+        workflow.add_edge("fundamental_analyst", "aggregator")
         workflow.add_edge("news_analyst", "aggregator")
+
+        # Sequential: aggregator → investment_analyst → END
         workflow.add_edge("aggregator", "investment_analyst")
         workflow.add_edge("investment_analyst", END)
 
         self._graph = workflow.compile()
+
+        if verbose:
+            print_graph_structure(self._graph)
+
         return self._graph
 
     def invoke(self, query: str) -> str:

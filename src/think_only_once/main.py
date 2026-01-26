@@ -1,6 +1,9 @@
 """Entry point for ThinkOnlyOnce demo application."""
 
+import sys
+
 from think_only_once.graph.orchestrator import get_orchestrator
+from think_only_once.output import save_html_report
 
 
 def analyze_stock(query: str) -> str:
@@ -19,13 +22,15 @@ def analyze_stock(query: str) -> str:
 
 def main() -> None:
     """Entry point for the CLI."""
-    import sys
-
     query = sys.argv[1] if len(sys.argv) > 1 else "Analyze NVDA stock"
 
-    print(f"Query: {query}\n")
+    print(f"Analyzing: {query}")
+    print("Running multi-agent analysis...")
+
     report = analyze_stock(query)
-    print(report)
+    output_path = save_html_report(report)
+
+    print(f"Report saved to: {output_path}")
 
 
 if __name__ == "__main__":

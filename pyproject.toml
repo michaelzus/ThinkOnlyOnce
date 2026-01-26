@@ -27,6 +27,7 @@ dependencies = [
     "langchain-openai>=0.2.0",
     "langchain-community>=0.3.0",
     "langgraph>=0.2.0",
+    "grandalf>=0.8",  # Required for LangGraph ASCII graph visualization
     "yfinance>=0.2.40",
     "ddgs>=1.0.0",
     "pydantic>=2.0.0",
