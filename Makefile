@@ -26,7 +26,7 @@ YELLOW := \033[0;33m
 RED := \033[0;31m
 NC := \033[0m  # No Color
 
-.PHONY: help venv install install-dev clean clean-all lint format type-check test test-cov run check pre-commit
+.PHONY: help venv install install-dev clean clean-all lint format type-check test test-cov run check
 
 # Default target
 help:
@@ -78,8 +78,6 @@ install-dev: venv
 	@mkdir -p $(LOGS_DIR)
 	@echo "$(GREEN)Installing project with dev dependencies...$(NC)"
 	@$(VENV_PIP) install -e ".[dev]" 2>&1 | tee $(LOGS_DIR)/install-dev.log
-	@echo "$(GREEN)Setting up pre-commit hooks...$(NC)"
-	@$(VENV_BIN)/pre-commit install 2>&1 | tee -a $(LOGS_DIR)/install-dev.log || true
 
 # Run linters (all configs read from pyproject.toml)
 lint:
@@ -150,9 +148,3 @@ clean-all: clean
 	@rm -rf $(VENV)/
 	@rm -rf $(LOGS_DIR)/
 	@echo "$(GREEN)Full clean complete!$(NC)"
-
-# Pre-commit hooks
-pre-commit:
-	@mkdir -p $(LOGS_DIR)
-	@echo "$(GREEN)Running pre-commit hooks...$(NC)"
-	@$(VENV_BIN)/pre-commit run --all-files 2>&1 | tee $(LOGS_DIR)/pre-commit.log

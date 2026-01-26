@@ -46,7 +46,6 @@ dev = [
     "Flake8-pyproject>=1.2.0",  # Enables flake8 to read config from pyproject.toml
     "pydocstyle>=6.0.0",
     "darglint>=1.8.0",
-    "pre-commit>=3.0.0",
     "types-PyYAML>=6.0.0",  # Type stubs for PyYAML
 ]
 

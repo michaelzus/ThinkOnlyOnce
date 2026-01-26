@@ -964,7 +964,6 @@ dev = [
     "Flake8-pyproject>=1.2.0",
     "pydocstyle>=6.0.0",
     "darglint>=1.8.0",
-    "pre-commit>=3.0.0",
     "types-PyYAML>=6.0.0",
 ]
 ```
