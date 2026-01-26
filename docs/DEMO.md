@@ -34,8 +34,14 @@
    - **Chains**: Sequential pipelines of operations
 
 3. **Visual Example:**
-   ```
-   User Query → Agent → [Thinks] → Calls Tool → [Gets Data] → Responds
+
+   ```mermaid
+   flowchart LR
+       A[User Query] --> B[Agent]
+       B --> C[Thinks]
+       C --> D[Calls Tool]
+       D --> E[Gets Data]
+       E --> F[Responds]
    ```
 
 ### Part 2: LangGraph Introduction (2-3 min)
@@ -58,8 +64,13 @@
    - Stateful, observable, debuggable
 
 4. **Supervisor Pattern (what we'll build):**
-   ```
-   Query → Router (LLM) → Decides agents → Run selected → Aggregate
+
+   ```mermaid
+   flowchart LR
+       A[Query] --> B[Router - LLM]
+       B --> C[Decides agents]
+       C --> D[Run selected]
+       D --> E[Aggregate]
    ```
 
 ### Part 3: Live Implementation (5-7 min)

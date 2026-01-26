@@ -56,8 +56,13 @@ thinkonlyonce "GOOGL price action and recent headlines"
 
 ## Architecture
 
-```
-User Query → Smart Router → [Technical, Fundamental, News Analysts] → Aggregator → Investment Analyst → Report
+```mermaid
+flowchart LR
+    A[User Query] --> B[Smart Router]
+    B --> C["Technical, Fundamental,<br/>News Analysts"]
+    C --> D[Aggregator]
+    D --> E[Investment Analyst]
+    E --> F[Report]
 ```
 
 The system uses a supervisor pattern where an LLM-based router analyzes the user's query and determines which specialist agents to invoke, optimizing for efficiency and relevance.

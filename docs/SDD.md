@@ -37,99 +37,69 @@ Build a minimal, educational multi-agent system that analyzes US equity stocks u
 
 ### 2.1 High-Level Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      USER INPUT                                  │
-│         "What's the news sentiment on NVDA?"                    │
-│         "Give me full analysis of AAPL"                         │
-│         "Check TSLA technicals"                                 │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    LANGGRAPH ORCHESTRATOR                        │
-│                                                                  │
-│                    ┌──────────────┐                             │
-│                    │    SMART     │  ← LLM decides which        │
-│                    │    ROUTER    │    agents to invoke         │
-│                    └──────┬───────┘                             │
-│                           │                                      │
-│         ┌─────────────────┼─────────────────┐                   │
-│         │ (conditional)   │ (conditional)   │ (conditional)     │
-│         ▼                 ▼                 ▼                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │  Technical   │  │ Fundamental  │  │    News      │          │
-│  │   Analyst    │  │   Analyst    │  │   Analyst    │          │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘          │
-│         │                 │                 │                   │
-│         ▼                 ▼                 ▼                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │   yfinance   │  │   yfinance   │  │  DuckDuckGo  │          │
-│  │     Tool     │  │     Tool     │  │     Tool     │          │
-│  └──────────────┘  └──────────────┘  └──────────────┘          │
-│                                                                  │
-│                    ┌──────────────────┐                         │
-│                    │    Aggregator    │  ← Collects all results │
-│                    └────────┬─────────┘                         │
-│                             │                                    │
-│                             ▼                                    │
-│                    ┌──────────────────┐                         │
-│                    │   Investment     │  ← LLM synthesizes      │
-│                    │    Analyst       │    AI outlook           │
-│                    └──────────────────┘                         │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    FINAL ANALYSIS REPORT                         │
-│       Includes all analyses + AI Investment Outlook              │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph Input["USER INPUT"]
+        Q1["What's the news sentiment on NVDA?"]
+        Q2["Give me full analysis of AAPL"]
+        Q3["Check TSLA technicals"]
+    end
+
+    subgraph Orchestrator["LANGGRAPH ORCHESTRATOR"]
+        Router["SMART ROUTER<br/>LLM decides which agents to invoke"]
+        
+        Router -->|conditional| TA
+        Router -->|conditional| FA
+        Router -->|conditional| NA
+        
+        subgraph Agents["Analyst Agents"]
+            TA["Technical<br/>Analyst"]
+            FA["Fundamental<br/>Analyst"]
+            NA["News<br/>Analyst"]
+        end
+        
+        subgraph Tools["Tools"]
+            YF1["yfinance<br/>Tool"]
+            YF2["yfinance<br/>Tool"]
+            DDG["DuckDuckGo<br/>Tool"]
+        end
+        
+        TA --> YF1
+        FA --> YF2
+        NA --> DDG
+        
+        YF1 --> Agg
+        YF2 --> Agg
+        DDG --> Agg
+        
+        Agg["Aggregator<br/>Collects all results"]
+        Agg --> IA["Investment Analyst<br/>LLM synthesizes AI outlook"]
+    end
+
+    Input --> Router
+    IA --> Report["FINAL ANALYSIS REPORT<br/>Includes all analyses + AI Investment Outlook"]
 ```
 
 ### 2.2 LangGraph State Flow
 
-```
-                    ┌─────────┐
-                    │  START  │
-                    └────┬────┘
-                         │
-                         ▼
-              ┌──────────────────┐
-              │   Smart Router   │  ← Analyzes query, sets
-              │   (LLM-based)    │    agents_to_run flags
-              └────────┬─────────┘
-                       │
-                       ▼
-              ┌──────────────────┐
-              │  Dispatch Node   │  ← Routes to selected agents
-              └────────┬─────────┘
-                       │
-         ┌─────────────┼─────────────┐
-         │             │             │
-         ▼             ▼             ▼
-   ┌───────────┐ ┌───────────┐ ┌───────────┐
-   │ Technical │ │Fundamental│ │   News    │
-   │ (if set)  │ │ (if set)  │ │ (if set)  │
-   └─────┬─────┘ └─────┬─────┘ └─────┬─────┘
-         │             │             │
-         └─────────────┼─────────────┘
-                       │
-                       ▼
-              ┌──────────────────┐
-              │    Aggregator    │  ← Collects analysis results
-              └────────┬─────────┘
-                       │
-                       ▼
-              ┌──────────────────┐
-              │   Investment     │  ← Generates AI outlook
-              │    Analyst       │    with price target
-              └────────┬─────────┘
-                       │
-                       ▼
-                  ┌─────────┐
-                  │   END   │
-                  └─────────┘
+```mermaid
+flowchart TB
+    Start([START])
+    Start --> Router["Smart Router<br/>(LLM-based)<br/>Analyzes query, sets agents_to_run flags"]
+    
+    Router --> Dispatch["Dispatch Node<br/>Routes to selected agents"]
+    
+    Dispatch --> Tech["Technical<br/>(if set)"]
+    Dispatch --> Fund["Fundamental<br/>(if set)"]
+    Dispatch --> News["News<br/>(if set)"]
+    
+    Tech --> Agg["Aggregator<br/>Collects analysis results"]
+    Fund --> Agg
+    News --> Agg
+    
+    Agg --> Invest["Investment Analyst<br/>Generates AI outlook<br/>with price target"]
+    
+    Invest --> End([END])
 ```
 
 ### 2.3 Router Decision Examples
