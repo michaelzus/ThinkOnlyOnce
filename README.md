@@ -80,7 +80,6 @@ The system uses a supervisor pattern where an LLM-based router analyzes the user
 ## Documentation
 
 - [Software Design Document](docs/SDD.md) - Architecture and design decisions
-- [Implementation Guide](docs/IMPLEMENTATION.md) - Code details and configuration
 - [Demo Guide](docs/DEMO.md) - Presentation script for colleagues
 
 ## Development
@@ -123,8 +122,6 @@ llm:
   base_url: "http://localhost:11434/v1"
   api_key: "not-needed"
 ```
-
-See [Implementation Guide](docs/IMPLEMENTATION.md#8-configuration-examples) for more examples.
 
 ## License
 

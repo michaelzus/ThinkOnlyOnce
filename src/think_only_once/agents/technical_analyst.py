@@ -1,9 +1,11 @@
 """Technical Analyst agent for price and trend analysis."""
 
-from think_only_once.agents.base import create_agent
+from langchain.agents import create_agent
+from langgraph.graph.state import CompiledStateGraph
+
+from think_only_once.agents.base import get_llm
 from think_only_once.config.settings import get_settings
 from think_only_once.tools.yfinance_tools import get_technical_data
-from langgraph.graph.state import CompiledStateGraph
 
 
 TECHNICAL_ANALYST_PROMPT = """You are a Technical Analyst specializing in stock price analysis.
@@ -28,10 +30,12 @@ def create_technical_analyst() -> CompiledStateGraph:
         CompiledStateGraph: Compiled agent graph that accepts {"messages": [...]} input format.
     """
     settings = get_settings()
+    llm = get_llm()
     tools = [get_technical_data]
 
     return create_agent(
-        system_prompt=TECHNICAL_ANALYST_PROMPT,
+        model=llm,
         tools=tools,
+        system_prompt=TECHNICAL_ANALYST_PROMPT,
         debug=settings.agents.verbose,
     )

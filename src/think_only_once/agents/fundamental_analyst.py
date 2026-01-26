@@ -1,9 +1,11 @@
 """Fundamental Analyst agent for valuation and financial health analysis."""
 
-from think_only_once.agents.base import create_agent
+from langchain.agents import create_agent
+from langgraph.graph.state import CompiledStateGraph
+
+from think_only_once.agents.base import get_llm
 from think_only_once.config.settings import get_settings
 from think_only_once.tools.yfinance_tools import get_fundamental_data
-from langgraph.graph.state import CompiledStateGraph
 
 
 FUNDAMENTAL_ANALYST_PROMPT = """You are a Fundamental Analyst specializing in company valuation.
@@ -28,10 +30,12 @@ def create_fundamental_analyst() -> CompiledStateGraph:
         CompiledStateGraph: Compiled agent graph that accepts {"messages": [...]} input format.
     """
     settings = get_settings()
+    llm = get_llm()
     tools = [get_fundamental_data]
 
     return create_agent(
-        system_prompt=FUNDAMENTAL_ANALYST_PROMPT,
+        model=llm,
         tools=tools,
+        system_prompt=FUNDAMENTAL_ANALYST_PROMPT,
         debug=settings.agents.verbose,
     )

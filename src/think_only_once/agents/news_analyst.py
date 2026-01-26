@@ -1,9 +1,11 @@
 """News Analyst agent for sentiment and headline analysis."""
 
-from think_only_once.agents.base import create_agent
+from langchain.agents import create_agent
+from langgraph.graph.state import CompiledStateGraph
+
+from think_only_once.agents.base import get_llm
 from think_only_once.config.settings import get_settings
 from think_only_once.tools.search_tools import search_stock_news
-from langgraph.graph.state import CompiledStateGraph
 
 
 NEWS_ANALYST_PROMPT = """You are a News Analyst specializing in market sentiment.
@@ -28,10 +30,12 @@ def create_news_analyst() -> CompiledStateGraph:
         CompiledStateGraph: Compiled agent graph that accepts {"messages": [...]} input format.
     """
     settings = get_settings()
+    llm = get_llm()
     tools = [search_stock_news]
 
     return create_agent(
-        system_prompt=NEWS_ANALYST_PROMPT,
+        model=llm,
         tools=tools,
+        system_prompt=NEWS_ANALYST_PROMPT,
         debug=settings.agents.verbose,
     )

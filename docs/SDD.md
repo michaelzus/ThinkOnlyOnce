@@ -406,12 +406,11 @@ class NewsData(BaseModel):
 
 5. **Class-based Orchestrator**: Encapsulates graph construction and agent lifecycle management.
 
-6. **LangGraph's create_react_agent**: Uses the official prebuilt ReAct agent implementation from LangGraph instead of manually building the agent loop. This provides:
-   - Optimized ReAct (Reasoning + Acting) pattern implementation
-   - Built-in best practices for tool calling and error handling
+6. **Direct LangChain create_agent Usage**: Each agent directly imports and uses `langchain.agents.create_agent` with the shared `get_llm()` function. This provides:
+   - Explicit dependency on LangChain's ReAct implementation
+   - No unnecessary wrapper abstraction (KISS principle)
    - Standard `{"messages": [...]}` interface for consistency
-   - Reduced code complexity and maintenance overhead
-   - Better future-proofing as LangGraph evolves
+   - Centralized LLM configuration via `get_llm()` while keeping agent creation explicit
 
 ### 5.3 Future Extensibility
 
