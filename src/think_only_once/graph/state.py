@@ -1,0 +1,35 @@
+"""LangGraph state definitions."""
+
+from typing import Annotated, TypedDict
+
+from langgraph.graph.message import add_messages
+
+
+class AnalysisState(TypedDict):
+    """Shared state across all agents in the graph."""
+
+    # Input
+    ticker: str
+    query: str
+
+    # Router decisions
+    run_technical: bool
+    run_fundamental: bool
+    run_news: bool
+
+    # Agent outputs
+    technical_analysis: str | None
+    fundamental_analysis: str | None
+    news_analysis: str | None
+
+    # Aggregated sections for report composition
+    aggregated_sections: list[str]
+
+    # Investment Analyst output
+    ai_outlook: str | None
+
+    # Final output
+    final_report: str | None
+
+    # Message history (for debugging)
+    messages: Annotated[list, add_messages]

@@ -1,0 +1,18 @@
+# ThinkOnlyOnce Configuration
+# Supports OpenAI (default) or any OpenAI-compatible endpoint
+
+llm:
+  # OpenAI (default) - requires OPENAI_API_KEY environment variable
+  model: "gpt-4o-mini"
+  temperature: 0.2
+  base_url: null  # Uses default OpenAI endpoint
+  api_key: null  # Set via OPENAI_API_KEY env var or specify here
+  max_tokens: 1024
+
+  # For local models (Ollama, vLLM, etc.), use:
+  # model: "llama3.1"
+  # base_url: "http://localhost:11434/v1"
+  # api_key: "not-needed"
+
+agents:
+  verbose: false

@@ -1,0 +1,148 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "thinkonlyonce"
+version = "0.1.0"
+description = "Stock Market Multi-Agent Analysis System - Educational demonstration of agentic coding concepts"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "ThinkOnlyOnce Team"}
+]
+keywords = ["langchain", "langgraph", "agents", "llm", "stock-analysis"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "langchain>=0.3.0",
+    "langchain-openai>=0.2.0",
+    "langchain-community>=0.3.0",
+    "langgraph>=0.2.0",
+    "yfinance>=0.2.40",
+    "ddgs>=1.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "pyyaml>=6.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=24.0.0",
+    "mypy>=1.0.0",
+    "flake8>=7.0.0",
+    "Flake8-pyproject>=1.2.0",  # Enables flake8 to read config from pyproject.toml
+    "pydocstyle>=6.0.0",
+    "darglint>=1.8.0",
+    "pre-commit>=3.0.0",
+    "types-PyYAML>=6.0.0",  # Type stubs for PyYAML
+]
+
+[project.scripts]
+thinkonlyonce = "think_only_once.main:main"
+
+[project.urls]
+Homepage = "https://github.com/michaelzus/ThinkOnlyOnce"
+Repository = "https://github.com/michaelzus/ThinkOnlyOnce"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["think_only_once*"]
+
+# Black configuration - code formatter
+[tool.black]
+line-length = 140
+target-version = ['py311', 'py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+# MyPy configuration - type checking
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+exclude = "(^tests/|setup\\.py$)"
+
+# Pydocstyle configuration - docstring style checking
+[tool.pydocstyle]
+convention = "google"
+add-ignore = ["D100", "D104", "D203", "D403", "D213", "D107", "D401", "D406", "D407", "D413", "D212", "D400", "D415"]
+match = '(?!test_).*\.py'
+match-dir = '(?!tests|\.venv|venv|build|dist).*'
+
+# Flake8 configuration - linting (requires Flake8-pyproject plugin)
+[tool.flake8]
+max-line-length = 140
+ignore = ["W503", "W504", "E402", "E203"]
+exclude = [
+    ".git",
+    "__pycache__",
+    ".eggs",
+    "*.egg",
+    "build",
+    "dist",
+    ".venv",
+    "venv",
+    ".mypy_cache",
+    ".pytest_cache",
+    "tests/*",
+]
+per-file-ignores = [
+    "__init__.py:F401",
+]
+
+# Darglint configuration - docstring argument checking
+[tool.darglint]
+docstring_style = "google"
+strictness = "short"
+ignore_regex = "^_(.*)"
+
+# Pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+markers = [
+    "unit: Unit tests (fast, isolated)",
+    "integration: Integration tests (may be slower)",
+    "e2e: End-to-end tests (requires API keys)",
+    "slow: Slow tests (network calls, etc.)",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["src/think_only_once"]
+omit = ["tests/*", "*/__init__.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
