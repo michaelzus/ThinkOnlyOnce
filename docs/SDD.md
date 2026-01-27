@@ -68,16 +68,16 @@ flowchart TB
         FA --> YF2
         NA --> DDG
         
-        YF1 --> Agg
-        YF2 --> Agg
-        DDG --> Agg
+        YF1 --> IA
+        YF2 --> IA
+        DDG --> IA
         
-        Agg["Aggregator<br/>Collects all results"]
-        Agg --> IA["Investment Analyst<br/>LLM synthesizes AI outlook"]
+        IA["Investment Analyst<br/>LLM synthesizes AI outlook"]
+        IA --> Agg["Aggregator<br/>Compiles final report"]
     end
 
     Input --> Router
-    IA --> Report["FINAL ANALYSIS REPORT<br/>Includes all analyses + AI Investment Outlook"]
+    Agg --> Report["FINAL ANALYSIS REPORT<br/>Includes all analyses + AI Investment Outlook"]
 ```
 
 ### 2.2 LangGraph State Flow
@@ -93,13 +93,13 @@ flowchart TB
     Dispatch --> Fund["Fundamental<br/>(if set)"]
     Dispatch --> News["News<br/>(if set)"]
     
-    Tech --> Agg["Aggregator<br/>Collects analysis results"]
-    Fund --> Agg
-    News --> Agg
+    Tech --> Invest["Investment Analyst<br/>Generates AI outlook<br/>with price target"]
+    Fund --> Invest
+    News --> Invest
     
-    Agg --> Invest["Investment Analyst<br/>Generates AI outlook<br/>with price target"]
+    Invest --> Agg["Aggregator<br/>Compiles final report"]
     
-    Invest --> End([END])
+    Agg --> End([END])
 ```
 
 ### 2.3 Router Decision Examples

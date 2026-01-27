@@ -22,9 +22,6 @@ class AnalysisState(TypedDict):
     fundamental_analysis: str | None
     news_analysis: str | None
 
-    # Aggregated sections for report composition
-    aggregated_sections: list[str]
-
     # Investment Analyst output
     ai_outlook: str | None
 

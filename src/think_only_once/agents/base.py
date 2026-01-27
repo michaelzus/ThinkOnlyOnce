@@ -34,4 +34,6 @@ def get_llm() -> ChatOpenAI:
         base_url=llm_config.base_url,
         api_key=api_key,  # type: ignore[arg-type]
         max_tokens=llm_config.max_tokens,  # type: ignore[call-arg]
+        max_retries=3,  # Retry on rate limit (429) errors with exponential backoff
+        request_timeout=60,  # Timeout per request in seconds
     )

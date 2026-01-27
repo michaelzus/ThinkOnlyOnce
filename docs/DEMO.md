@@ -70,7 +70,8 @@
        A[Query] --> B[Router - LLM]
        B --> C[Decides agents]
        C --> D[Run selected]
-       D --> E[Aggregate]
+       D --> E[AI Outlook]
+       E --> F[Aggregate]
    ```
 
 ### Part 3: Live Implementation (5-7 min)

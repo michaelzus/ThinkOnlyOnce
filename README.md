@@ -60,8 +60,8 @@ thinkonlyonce "GOOGL price action and recent headlines"
 flowchart LR
     A[User Query] --> B[Smart Router]
     B --> C["Technical, Fundamental,<br/>News Analysts"]
-    C --> D[Aggregator]
-    D --> E[Investment Analyst]
+    C --> D[Investment Analyst]
+    D --> E[Aggregator]
     E --> F[Report]
 ```
 
