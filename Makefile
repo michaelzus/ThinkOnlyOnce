@@ -71,13 +71,13 @@ venv:
 install: venv
 	@mkdir -p $(LOGS_DIR)
 	@echo "$(GREEN)Installing project dependencies...$(NC)"
-	@$(VENV_PIP) install -e . 2>&1 | tee $(LOGS_DIR)/install.log
+	@$(VENV_PIP) install -e . -q 2>&1 | tee $(LOGS_DIR)/install.log
 
 # Install with dev dependencies
 install-dev: venv
 	@mkdir -p $(LOGS_DIR)
 	@echo "$(GREEN)Installing project with dev dependencies...$(NC)"
-	@$(VENV_PIP) install -e ".[dev]"2>&1 | tee $(LOGS_DIR)/install-dev.log
+	@$(VENV_PIP) install -e ".[dev]" -q 2>&1 | tee $(LOGS_DIR)/install-dev.log
 
 # Run linters (all configs read from pyproject.toml)
 lint:

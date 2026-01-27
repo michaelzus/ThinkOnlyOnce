@@ -63,17 +63,17 @@ class TestStockAnalyzerOrchestrator:
         """Test report aggregation."""
         orchestrator = StockAnalyzerOrchestrator()
         result = orchestrator.aggregator_node(completed_analysis_state)
-        assert "aggregated_sections" in result
-        assert len(result["aggregated_sections"]) == 3
+        assert "final_report" in result
+        assert "Stock Analysis Report" in result["final_report"]
+        assert "Technical Analysis" in result["final_report"]
 
     def test_investment_analyst_node(self, completed_analysis_state) -> None:
-        """Test AI outlook generation and report assembly."""
+        """Test AI outlook generation."""
         orchestrator = StockAnalyzerOrchestrator()
         with patch("think_only_once.graph.orchestrator.generate_investment_outlook") as mock_outlook:
             mock_outlook.return_value = "BUY outlook"
             result = orchestrator.investment_analyst_node(completed_analysis_state)
             assert result["ai_outlook"] == "BUY outlook"
-            assert "Stock Analysis Report" in result["final_report"]
 
     def test_build_graph_returns_compiled_graph(self) -> None:
         """Test build method returns compiled graph."""

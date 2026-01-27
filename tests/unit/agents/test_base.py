@@ -1,5 +1,6 @@
 """Tests for base agent factory."""
 
+import os
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -23,6 +24,7 @@ class TestGetLLM:
         with pytest.raises(ValueError, match="API key required"):
             get_llm()
 
+    @pytest.mark.skipif(not os.environ.get("CI"), reason="CI only - depends on config.yaml")
     def test_get_llm_uses_config_settings(self, mock_env_api_key) -> None:
         """Test get_llm applies settings from config."""
         # Clear cache to ensure fresh config load
