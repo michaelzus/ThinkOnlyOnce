@@ -132,7 +132,7 @@ clean:
 	@echo "$(GREEN)Cleaning build artifacts...$(NC)"
 	@rm -rf build/
 	@rm -rf dist/
-	@rm -rf *.egg-info/
+	@find . -type d -name "*.egg-info" -exec rm -rf {} + 2>/dev/null || true
 	@rm -rf .pytest_cache/
 	@rm -rf .mypy_cache/
 	@rm -rf .coverage

@@ -47,13 +47,18 @@ class TestAnalysisWorkflow:
             mock_tech.return_value = tech_agent
             mock_fund.return_value = fund_agent
             mock_news.return_value = news_agent
-            mock_outlook.return_value = "**Recommendation:** BUY"
+            mock_outlook.return_value = (
+                "**Recommendation:** BUY (High Confidence)\n"
+                "**Price Target:** $150 (+10% from current)\n"
+                "**Investment Thesis:** Test thesis."
+            )
 
             result = orchestrator.invoke("Analyze NVDA stock")
 
             assert result is not None
-            assert "NVDA" in result
-            assert "Stock Analysis Report" in result
+            assert "NVDA" in result.final_report
+            assert "Stock Analysis Report" in result.final_report
+            assert result.summary.recommendation == "BUY"
 
     def test_workflow_respects_router_decisions(self) -> None:
         """Test that workflow only runs agents selected by router."""
@@ -80,10 +85,14 @@ class TestAnalysisWorkflow:
             mock_tech.return_value = tech_agent
             mock_fund.return_value = MagicMock()
             mock_news.return_value = MagicMock()
-            mock_outlook.return_value = "**Recommendation:** HOLD"
+            mock_outlook.return_value = (
+                "**Recommendation:** HOLD (Medium Confidence)\n"
+                "**Price Target:** $180 (+5% from current)\n"
+                "**Investment Thesis:** Hold thesis."
+            )
 
             result = orchestrator.invoke("Check AAPL technicals")
 
-            assert "Technical Analysis" in result
-            assert "Fundamental Analysis" not in result
-            assert "News & Sentiment Analysis" not in result
+            assert "Technical Analysis" in result.final_report
+            assert "Fundamental Analysis" not in result.final_report
+            assert "News & Sentiment Analysis" not in result.final_report

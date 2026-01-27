@@ -1,5 +1,6 @@
 """LangGraph orchestrator for the multi-agent stock analysis workflow."""
 
+from dataclasses import dataclass
 from typing import Any
 
 from langgraph.graph import END, START, StateGraph
@@ -10,6 +11,16 @@ from think_only_once.agents.news_analyst import create_news_analyst
 from think_only_once.agents.router import RouterDecision, route_query
 from think_only_once.agents.technical_analyst import create_technical_analyst
 from think_only_once.graph.state import AnalysisState
+from think_only_once.models import InvestmentSummary, parse_investment_outlook
+
+
+@dataclass
+class AnalysisResult:
+    """Result of the stock analysis workflow."""
+
+    final_report: str
+    summary: InvestmentSummary
+    ticker: str
 
 
 def print_graph_structure(graph: Any) -> None:
@@ -260,14 +271,14 @@ class StockAnalyzerOrchestrator:
 
         return self._graph
 
-    def invoke(self, query: str) -> str:
+    def invoke(self, query: str) -> AnalysisResult:
         """Run the analysis workflow for a given query.
 
         Args:
             query: User's stock analysis query.
 
         Returns:
-            Formatted stock analysis report.
+            AnalysisResult with report, summary, and ticker.
         """
         graph = self.build()
 
@@ -287,7 +298,14 @@ class StockAnalyzerOrchestrator:
         }
 
         result = graph.invoke(initial_state)
-        return result["final_report"]
+
+        summary = parse_investment_outlook(result["ai_outlook"] or "")
+
+        return AnalysisResult(
+            final_report=result["final_report"],
+            summary=summary,
+            ticker=result["ticker"],
+        )
 
 
 _orchestrator: StockAnalyzerOrchestrator | None = None

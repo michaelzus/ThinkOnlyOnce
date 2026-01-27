@@ -1,6 +1,47 @@
 """Pydantic models for tool outputs and data schemas."""
 
+import re
+
 from pydantic import BaseModel, Field
+
+
+class InvestmentSummary(BaseModel):
+    """Summary of investment recommendation for stdout output."""
+
+    recommendation: str = Field(description="BUY, HOLD, or SELL recommendation")
+    confidence: str = Field(description="Confidence level: High, Medium, or Low")
+    price_target: str = Field(description="Target price with percentage change")
+    thesis: str = Field(description="Investment thesis summary")
+
+
+def parse_investment_outlook(outlook_text: str) -> InvestmentSummary:
+    """Parse AI investment outlook text into structured summary.
+
+    Args:
+        outlook_text: Raw text from the investment analyst.
+
+    Returns:
+        Parsed InvestmentSummary with key fields.
+    """
+    # Extract recommendation (e.g., "BUY (High Confidence)")
+    rec_match = re.search(r"\*\*Recommendation:\*\*\s*(BUY|HOLD|SELL)\s*\((\w+)\s*Confidence\)", outlook_text, re.IGNORECASE)
+    recommendation = rec_match.group(1).upper() if rec_match else "N/A"
+    confidence = rec_match.group(2).capitalize() if rec_match else "N/A"
+
+    # Extract price target (e.g., "$150 (+15% from current)")
+    price_match = re.search(r"\*\*Price Target:\*\*\s*(\$[\d,.]+\s*\([^)]+\))", outlook_text, re.IGNORECASE)
+    price_target = price_match.group(1) if price_match else "N/A"
+
+    # Extract investment thesis
+    thesis_match = re.search(r"\*\*Investment Thesis:\*\*\s*(.+?)(?:\n\n|\Z)", outlook_text, re.DOTALL | re.IGNORECASE)
+    thesis = thesis_match.group(1).strip() if thesis_match else "N/A"
+
+    return InvestmentSummary(
+        recommendation=recommendation,
+        confidence=confidence,
+        price_target=price_target,
+        thesis=thesis,
+    )
 
 
 class TechnicalData(BaseModel):
