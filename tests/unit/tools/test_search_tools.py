@@ -2,6 +2,7 @@
 
 from unittest.mock import patch
 
+from think_only_once.models import NewsData
 from think_only_once.tools.search_tools import search_stock_news
 
 
@@ -9,9 +10,9 @@ class TestSearchStockNews:
     """Tests for search_stock_news tool."""
 
     def test_search_stock_news_returns_string(self, patch_ddg_search) -> None:
-        """Test that search_stock_news returns a string."""
+        """Test that search_stock_news returns NewsData model."""
         result = search_stock_news.invoke({"ticker": "NVDA"})
-        assert isinstance(result, str)
+        assert isinstance(result, NewsData)
 
     def test_search_stock_news_calls_ddg_with_correct_query(self, mock_ddg_search) -> None:
         """Test that DDG search is called with correct query format."""

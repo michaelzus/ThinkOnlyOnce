@@ -25,6 +25,10 @@ class TestGetLLM:
 
     def test_get_llm_uses_config_settings(self, mock_env_api_key) -> None:
         """Test get_llm applies settings from config."""
+        # Clear cache to ensure fresh config load
+        from think_only_once.config.settings import get_settings
+        get_settings.cache_clear()
+        
         with patch("think_only_once.agents.base.ChatOpenAI") as mock_chat:
             mock_chat.return_value = MagicMock()
             get_llm()
