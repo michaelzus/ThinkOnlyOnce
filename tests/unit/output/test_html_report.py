@@ -185,7 +185,7 @@ Line 3"""
         """Test separator and footer lines are skipped."""
         markdown = """# Stock Analysis Report: GOOG
 
-## Analysis
+## Technical Analysis
 Content here
 
 ---
@@ -199,9 +199,9 @@ Content here
         """Test handling of sections with no content."""
         markdown = """# Stock Analysis Report: AMZN
 
-## Section One
+## Technical Analysis
 
-## Section Two
+## Fundamental Analysis
 Actual content"""
         _, sections = _parse_markdown_report(markdown)
         assert len(sections) == 2

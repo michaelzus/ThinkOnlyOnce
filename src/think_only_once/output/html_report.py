@@ -12,19 +12,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <title>Stock Analysis Report - {ticker}</title>
     <style>
         :root {{
-            --primary: #1a73e8;
-            --primary-dark: #1557b0;
-            --success: #34a853;
-            --warning: #fbbc04;
-            --danger: #ea4335;
-            --neutral: #5f6368;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-card: #ffffff;
-            --text-primary: #202124;
-            --text-secondary: #5f6368;
-            --border: #dadce0;
-            --shadow: rgba(60, 64, 67, 0.15);
+            --apple-blue: #0071e3;
+            --apple-blue-hover: #0077ed;
+            --apple-gray: #f5f5f7;
+            --apple-dark: #1d1d1f;
+            --apple-text: #1d1d1f;
+            --apple-text-secondary: #86868b;
+            --apple-border: #d2d2d7;
+            --apple-card: #ffffff;
+            --success: #34c759;
+            --warning: #ff9500;
+            --danger: #ff3b30;
         }}
 
         * {{
@@ -34,76 +32,140 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }}
 
         body {{
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: var(--apple-gray);
             min-height: 100vh;
-            padding: 40px 20px;
-            line-height: 1.6;
-            color: var(--text-primary);
+            padding: 60px 24px;
+            line-height: 1.47059;
+            color: var(--apple-text);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }}
 
         .container {{
-            max-width: 900px;
+            max-width: 980px;
             margin: 0 auto;
         }}
 
         .report {{
-            background: var(--bg-primary);
-            border-radius: 16px;
-            box-shadow: 0 20px 60px var(--shadow);
+            background: var(--apple-card);
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
             overflow: hidden;
         }}
 
         .header {{
-            background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+            background: var(--apple-dark);
             color: white;
-            padding: 40px;
+            padding: 80px 48px 60px;
             text-align: center;
         }}
 
-        .header h1 {{
-            font-size: 2.5rem;
+        .brand-title {{
+            font-size: 4rem;
             font-weight: 700;
+            letter-spacing: -0.02em;
             margin-bottom: 8px;
-            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #fff 0%, #a1a1a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }}
+
+        .header h1 {{
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 24px;
+            color: #a1a1a6;
+            letter-spacing: -0.01em;
         }}
 
         .ticker-badge {{
             display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 8px 24px;
-            border-radius: 50px;
-            font-size: 1.25rem;
+            background: var(--apple-blue);
+            padding: 12px 32px;
+            border-radius: 980px;
+            font-size: 1.5rem;
             font-weight: 600;
-            margin-top: 12px;
-            backdrop-filter: blur(10px);
+            letter-spacing: 0.02em;
         }}
 
         .meta {{
             display: flex;
             justify-content: center;
-            gap: 24px;
-            margin-top: 20px;
-            font-size: 0.9rem;
-            opacity: 0.9;
+            gap: 32px;
+            margin-top: 32px;
+            font-size: 0.875rem;
+            color: #a1a1a6;
         }}
 
         .meta-item {{
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }}
 
         .content {{
-            padding: 40px;
+            padding: 48px;
+        }}
+
+        .toggle-controls {{
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-bottom: 24px;
+        }}
+
+        .toggle-btn {{
+            background: transparent;
+            border: none;
+            border-radius: 980px;
+            padding: 12px 20px;
+            font-size: 0.875rem;
+            font-weight: 400;
+            color: var(--apple-blue);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }}
+
+        .toggle-btn:hover {{
+            background: rgba(0, 113, 227, 0.1);
+        }}
+
+        .recommendation-summary {{
+            background: var(--apple-card);
+            border: none;
+            border-radius: 18px;
+            padding: 32px 40px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }}
+
+        .recommendation-summary .label {{
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--apple-text);
+            letter-spacing: -0.01em;
+        }}
+
+        .recommendation-summary .recommendation {{
+            font-size: 1.25rem;
+            padding: 10px 24px;
+            font-weight: 600;
         }}
 
         .section {{
-            margin-bottom: 32px;
-            background: var(--bg-secondary);
-            border-radius: 12px;
+            margin-bottom: 16px;
+            background: var(--apple-card);
+            border-radius: 18px;
             overflow: hidden;
-            border: 1px solid var(--border);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            border: none;
         }}
 
         .section:last-child {{
@@ -113,52 +175,95 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         .section-header {{
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 20px 24px;
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border);
+            gap: 16px;
+            padding: 24px 28px;
+            background: var(--apple-card);
+            border-bottom: 1px solid var(--apple-border);
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }}
 
-        .section-icon {{
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+        .section-header:hover {{
+            background: var(--apple-gray);
+        }}
+
+        .section-toggle {{
+            margin-left: auto;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--apple-text-secondary);
+            font-size: 0.875rem;
+        }}
+
+        .section.collapsed .section-toggle {{
+            transform: rotate(-90deg);
+        }}
+
+        .section-icon {{
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.375rem;
         }}
 
         .section-icon.technical {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #5e5ce6 0%, #bf5af2 100%);
         }}
 
         .section-icon.fundamental {{
-            background: linear-gradient(135deg, #34a853 0%, #0d652d 100%);
+            background: linear-gradient(135deg, #30d158 0%, #34c759 100%);
         }}
 
         .section-icon.news {{
-            background: linear-gradient(135deg, #fbbc04 0%, #ea8600 100%);
+            background: linear-gradient(135deg, #ff9f0a 0%, #ff9500 100%);
         }}
 
         .section-icon.outlook {{
-            background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+            background: linear-gradient(135deg, #0a84ff 0%, #0071e3 100%);
         }}
 
         .section-title {{
             font-size: 1.25rem;
             font-weight: 600;
-            color: var(--text-primary);
+            color: var(--apple-text);
+            letter-spacing: -0.01em;
         }}
 
         .section-content {{
-            padding: 24px;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
+            padding: 28px;
+            color: var(--apple-text-secondary);
+            font-size: 1rem;
+            line-height: 1.5;
+            max-height: 3000px;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 1;
+        }}
+
+        .section.collapsed .section-content {{
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: 0;
+        }}
+
+        .section.collapsed .section-header {{
+            border-bottom: none;
         }}
 
         .section-content p {{
             margin-bottom: 16px;
+            color: var(--apple-text);
         }}
 
         .section-content p:last-child {{
@@ -166,98 +271,122 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }}
 
         .section-content strong {{
-            color: var(--text-primary);
+            color: var(--apple-text);
             font-weight: 600;
         }}
 
         .section-content ul, .section-content ol {{
             margin: 16px 0;
             padding-left: 24px;
+            color: var(--apple-text);
         }}
 
         .section-content li {{
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+        }}
+
+        .section-content .subsection-title {{
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--apple-text);
+            margin: 32px 0 16px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--apple-border);
+            letter-spacing: -0.01em;
+        }}
+
+        .section-content .subsection-title:first-child {{
+            margin-top: 0;
         }}
 
         .recommendation {{
             display: inline-block;
-            padding: 6px 16px;
-            border-radius: 50px;
+            padding: 8px 20px;
+            border-radius: 980px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.9375rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.02em;
         }}
 
         .recommendation.buy {{
-            background: #e6f4ea;
-            color: #137333;
+            background: rgba(52, 199, 89, 0.12);
+            color: #248a3d;
         }}
 
         .recommendation.hold {{
-            background: #fef7e0;
-            color: #b06000;
+            background: rgba(255, 149, 0, 0.12);
+            color: #c93400;
         }}
 
         .recommendation.sell {{
-            background: #fce8e6;
-            color: #c5221f;
+            background: rgba(255, 59, 48, 0.12);
+            color: #d70015;
         }}
 
         .highlight-box {{
-            background: linear-gradient(135deg, #e8f0fe 0%, #f3e8fd 100%);
-            border-left: 4px solid var(--primary);
-            padding: 16px 20px;
-            margin: 16px 0;
-            border-radius: 0 8px 8px 0;
+            background: var(--apple-gray);
+            border-left: 4px solid var(--apple-blue);
+            padding: 20px 24px;
+            margin: 20px 0;
+            border-radius: 0 12px 12px 0;
         }}
 
         .footer {{
             text-align: center;
-            padding: 24px 40px;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-size: 0.85rem;
+            padding: 32px 48px;
+            background: var(--apple-gray);
+            color: var(--apple-text-secondary);
+            font-size: 0.875rem;
         }}
 
-        .footer a {{
-            color: var(--primary);
-            text-decoration: none;
+        .footer strong {{
+            color: var(--apple-text);
         }}
 
-        .footer a:hover {{
-            text-decoration: underline;
-        }}
-
-        @media (max-width: 640px) {{
+        @media (max-width: 734px) {{
             body {{
-                padding: 20px 12px;
+                padding: 24px 16px;
             }}
 
             .header {{
-                padding: 30px 20px;
+                padding: 48px 24px 40px;
+            }}
+
+            .brand-title {{
+                font-size: 2.5rem;
             }}
 
             .header h1 {{
-                font-size: 1.75rem;
+                font-size: 1.125rem;
+            }}
+
+            .ticker-badge {{
+                font-size: 1.125rem;
+                padding: 10px 24px;
             }}
 
             .content {{
-                padding: 20px;
+                padding: 24px;
             }}
 
             .section-header {{
-                padding: 16px;
+                padding: 20px;
             }}
 
             .section-content {{
-                padding: 16px;
+                padding: 20px;
             }}
 
             .meta {{
                 flex-direction: column;
-                gap: 8px;
+                gap: 12px;
+            }}
+
+            .recommendation-summary {{
+                flex-direction: column;
+                padding: 24px;
+                gap: 12px;
             }}
         }}
     </style>
@@ -266,6 +395,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <div class="container">
         <article class="report">
             <header class="header">
+                <div class="brand-title">ThinkOnlyOnce</div>
                 <h1>Stock Analysis Report</h1>
                 <div class="ticker-badge">{ticker}</div>
                 <div class="meta">
@@ -274,6 +404,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 </div>
             </header>
             <div class="content">
+                <div class="toggle-controls">
+                    <button class="toggle-btn" onclick="expandAll()">Expand All</button>
+                    <button class="toggle-btn" onclick="collapseAll()">Collapse All</button>
+                </div>
+                {recommendation_summary}
                 {sections}
             </div>
             <footer class="footer">
@@ -281,15 +416,29 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             </footer>
         </article>
     </div>
+    <script>
+        function toggleSection(section) {{
+            section.classList.toggle('collapsed');
+        }}
+
+        function expandAll() {{
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('collapsed'));
+        }}
+
+        function collapseAll() {{
+            document.querySelectorAll('.section').forEach(s => s.classList.add('collapsed'));
+        }}
+    </script>
 </body>
 </html>
 """
 
 SECTION_TEMPLATE = """
-<section class="section">
-    <div class="section-header">
+<section class="section collapsed">
+    <div class="section-header" onclick="toggleSection(this.parentElement)">
         <div class="section-icon {icon_class}">{icon}</div>
         <h2 class="section-title">{title}</h2>
+        <div class="section-toggle">▼</div>
     </div>
     <div class="section-content">
         {content}
@@ -358,8 +507,11 @@ def _markdown_to_html(text: str) -> str:
                     result_lines.append("</ul>")
                 in_list = False
 
+            # Check for ### subsection headers
+            if stripped.startswith("### "):
+                result_lines.append(f'<h3 class="subsection-title">{stripped[4:]}</h3>')
             # Regular paragraph
-            if stripped:
+            elif stripped:
                 result_lines.append(f"<p>{stripped}</p>")
 
     # Close any open list
@@ -397,6 +549,9 @@ def _markdown_to_html(text: str) -> str:
 def _parse_markdown_report(markdown_report: str) -> tuple[str, list[tuple[str, str]]]:
     """Parse markdown report into ticker and sections.
 
+    Only recognizes the 4 main section headers. Any other ## headers within the content
+    are converted to ### subsections to avoid creating extra section cards.
+
     Args:
         markdown_report: The markdown formatted report.
 
@@ -407,6 +562,9 @@ def _parse_markdown_report(markdown_report: str) -> tuple[str, list[tuple[str, s
     ticker_match = re.search(r"# Stock Analysis Report:\s*(\w+)", markdown_report)
     ticker = ticker_match.group(1) if ticker_match else "UNKNOWN"
 
+    # Only these 4 are recognized as main sections
+    main_sections = set(SECTION_CONFIG.keys())
+
     # Split by ## headers
     sections: list[tuple[str, str]] = []
     current_title: str | None = None
@@ -414,11 +572,17 @@ def _parse_markdown_report(markdown_report: str) -> tuple[str, list[tuple[str, s
 
     for line in markdown_report.split("\n"):
         if line.startswith("## "):
-            # Save previous section if exists
-            if current_title:
-                sections.append((current_title, "\n".join(current_content).strip()))
-            current_title = line[3:].strip()
-            current_content = []
+            header_title = line[3:].strip()
+            if header_title in main_sections:
+                # This is a main section - save previous and start new
+                if current_title:
+                    sections.append((current_title, "\n".join(current_content).strip()))
+                current_title = header_title
+                current_content = []
+            elif current_title:
+                # This is a subsection within a main section - convert to ### and keep as content
+                current_content.append(f"### {header_title}")
+            # If no current_title yet, skip unrecognized headers before first main section
         elif line.startswith("# ") or line.startswith("---") or line.startswith("*Generated"):
             # Skip title, separator, and footer
             continue
@@ -432,6 +596,36 @@ def _parse_markdown_report(markdown_report: str) -> tuple[str, list[tuple[str, s
     return ticker, sections
 
 
+def _extract_recommendation(sections: list[tuple[str, str]]) -> str:
+    """Extract recommendation from AI Investment Outlook section.
+
+    Args:
+        sections: List of (title, content) tuples.
+
+    Returns:
+        HTML string for recommendation summary, or empty string if not found.
+    """
+    for title, content in sections:
+        if title == "AI Investment Outlook":
+            # Look for "Recommendation:" pattern
+            match = re.search(r"\*\*Recommendation:\*\*\s*(.+?)(?:\n|$)", content)
+            if match:
+                rec_text = match.group(1).strip()
+                # Determine badge class
+                rec_lower = rec_text.lower()
+                if "buy" in rec_lower:
+                    badge_class = "buy"
+                elif "sell" in rec_lower:
+                    badge_class = "sell"
+                else:
+                    badge_class = "hold"
+                return f'''<div class="recommendation-summary">
+                    <span class="label">Recommendation:</span>
+                    <span class="recommendation {badge_class}">{rec_text}</span>
+                </div>'''
+    return ""
+
+
 def generate_html_report(markdown_report: str) -> str:
     """Generate a styled HTML report from markdown.
 
@@ -442,6 +636,9 @@ def generate_html_report(markdown_report: str) -> str:
         Complete HTML document as string.
     """
     ticker, sections = _parse_markdown_report(markdown_report)
+
+    # Extract recommendation summary
+    recommendation_summary = _extract_recommendation(sections)
 
     # Generate section HTML
     sections_html = []
@@ -467,6 +664,7 @@ def generate_html_report(markdown_report: str) -> str:
         ticker=ticker,
         date=date_str,
         time=time_str,
+        recommendation_summary=recommendation_summary,
         sections="\n".join(sections_html),
     )
 
