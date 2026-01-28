@@ -78,3 +78,22 @@ class NewsData(BaseModel):
     headlines: list[str] = Field(default_factory=list, description="List of news headlines")
     snippets: list[str] = Field(default_factory=list, description="List of news snippets")
     search_query: str = Field(description="The search query used")
+
+
+class PricePoint(BaseModel):
+    """Single price data point for historical chart."""
+
+    date: str = Field(description="Date in YYYY-MM-DD format")
+    open: float = Field(description="Opening price")
+    high: float = Field(description="High price")
+    low: float = Field(description="Low price")
+    close: float = Field(description="Closing price")
+    volume: int = Field(description="Trading volume")
+
+
+class PriceHistory(BaseModel):
+    """Output schema for price history tool."""
+
+    ticker: str = Field(description="Stock ticker symbol")
+    period: str = Field(description="Time period (e.g., 6mo, 1y)")
+    data: list[PricePoint] = Field(default_factory=list, description="Historical price data points")

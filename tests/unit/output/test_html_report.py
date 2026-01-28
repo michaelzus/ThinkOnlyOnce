@@ -5,7 +5,10 @@ from unittest.mock import patch
 
 import pytest
 
+from think_only_once.models import PriceHistory, PricePoint
 from think_only_once.output.html_report import (
+    _generate_price_chart_html,
+    _generate_svg_chart,
     _markdown_to_html,
     _parse_markdown_report,
     generate_html_report,
@@ -409,3 +412,261 @@ class TestSectionConfig:
         """Test config contains AI Investment Outlook section."""
         assert "AI Investment Outlook" in SECTION_CONFIG
         assert SECTION_CONFIG["AI Investment Outlook"]["icon_class"] == "outlook"
+
+
+class TestGenerateSvgChart:
+    """Tests for _generate_svg_chart function."""
+
+    @pytest.fixture
+    def sample_price_history(self) -> PriceHistory:
+        """Create sample price history for testing."""
+        return PriceHistory(
+            ticker="NVDA",
+            period="6mo",
+            data=[
+                PricePoint(date="2024-01-01", open=100.0, high=102.0, low=99.0, close=101.0, volume=1000000),
+                PricePoint(date="2024-01-02", open=101.0, high=103.0, low=100.0, close=102.0, volume=1100000),
+                PricePoint(date="2024-01-03", open=102.0, high=104.0, low=101.0, close=103.0, volume=1200000),
+                PricePoint(date="2024-01-04", open=103.0, high=105.0, low=102.0, close=104.0, volume=1300000),
+                PricePoint(date="2024-01-05", open=104.0, high=106.0, low=103.0, close=105.0, volume=1400000),
+            ],
+        )
+
+    def test_returns_svg_string(self, sample_price_history: PriceHistory) -> None:
+        """Test that function returns SVG string."""
+        result = _generate_svg_chart(sample_price_history)
+        assert result.startswith("<svg")
+        assert "</svg>" in result
+
+    def test_includes_viewbox(self, sample_price_history: PriceHistory) -> None:
+        """Test that SVG includes viewBox attribute."""
+        result = _generate_svg_chart(sample_price_history)
+        assert "viewBox" in result
+
+    def test_includes_gradient(self, sample_price_history: PriceHistory) -> None:
+        """Test that SVG includes gradient definition."""
+        result = _generate_svg_chart(sample_price_history)
+        assert "linearGradient" in result
+        assert "chartGradient" in result
+
+    def test_includes_path_element(self, sample_price_history: PriceHistory) -> None:
+        """Test that SVG includes path element for the line."""
+        result = _generate_svg_chart(sample_price_history)
+        assert "<path" in result
+
+    def test_includes_axis_labels(self, sample_price_history: PriceHistory) -> None:
+        """Test that SVG includes axis labels."""
+        result = _generate_svg_chart(sample_price_history)
+        assert "<text" in result
+
+    def test_empty_data_returns_empty_string(self) -> None:
+        """Test that empty data returns empty string."""
+        empty_history = PriceHistory(ticker="NVDA", period="6mo", data=[])
+        result = _generate_svg_chart(empty_history)
+        assert result == ""
+
+    def test_positive_trend_uses_green_color(self, sample_price_history: PriceHistory) -> None:
+        """Test that positive price trend uses green color."""
+        result = _generate_svg_chart(sample_price_history)
+        assert "#34c759" in result  # Green color
+
+    def test_negative_trend_uses_red_color(self) -> None:
+        """Test that negative price trend uses red color."""
+        declining_history = PriceHistory(
+            ticker="TEST",
+            period="6mo",
+            data=[
+                PricePoint(date="2024-01-01", open=105.0, high=106.0, low=104.0, close=105.0, volume=1000000),
+                PricePoint(date="2024-01-02", open=104.0, high=105.0, low=103.0, close=103.0, volume=1100000),
+                PricePoint(date="2024-01-03", open=103.0, high=104.0, low=101.0, close=100.0, volume=1200000),
+            ],
+        )
+        result = _generate_svg_chart(declining_history)
+        assert "#ff3b30" in result  # Red color
+
+    def test_includes_end_point_circle(self, sample_price_history: PriceHistory) -> None:
+        """Test that SVG includes end point circle marker."""
+        result = _generate_svg_chart(sample_price_history)
+        assert "<circle" in result
+
+
+class TestGeneratePriceChartHtml:
+    """Tests for _generate_price_chart_html function."""
+
+    @pytest.fixture
+    def sample_price_history(self) -> PriceHistory:
+        """Create sample price history for testing."""
+        return PriceHistory(
+            ticker="AAPL",
+            period="6mo",
+            data=[
+                PricePoint(date="2024-01-01", open=150.0, high=152.0, low=149.0, close=150.0, volume=1000000),
+                PricePoint(date="2024-01-02", open=150.0, high=155.0, low=149.0, close=154.0, volume=1100000),
+                PricePoint(date="2024-01-03", open=154.0, high=158.0, low=153.0, close=157.0, volume=1200000),
+            ],
+        )
+
+    def test_returns_html_string(self, sample_price_history: PriceHistory) -> None:
+        """Test that function returns HTML string."""
+        result = _generate_price_chart_html(sample_price_history)
+        assert "price-chart-container" in result
+
+    def test_includes_ticker(self, sample_price_history: PriceHistory) -> None:
+        """Test that HTML includes ticker symbol."""
+        result = _generate_price_chart_html(sample_price_history)
+        assert "AAPL" in result
+
+    def test_includes_period_label(self, sample_price_history: PriceHistory) -> None:
+        """Test that HTML includes period label."""
+        result = _generate_price_chart_html(sample_price_history)
+        assert "6 Months" in result
+
+    def test_includes_current_price(self, sample_price_history: PriceHistory) -> None:
+        """Test that HTML includes current price."""
+        result = _generate_price_chart_html(sample_price_history)
+        assert "$157.00" in result
+
+    def test_includes_high_price(self, sample_price_history: PriceHistory) -> None:
+        """Test that HTML includes period high."""
+        result = _generate_price_chart_html(sample_price_history)
+        assert "$157.00" in result  # High is the same as close in this test data
+
+    def test_includes_low_price(self, sample_price_history: PriceHistory) -> None:
+        """Test that HTML includes period low."""
+        result = _generate_price_chart_html(sample_price_history)
+        assert "$150.00" in result
+
+    def test_includes_change_percentage(self, sample_price_history: PriceHistory) -> None:
+        """Test that HTML includes price change percentage."""
+        result = _generate_price_chart_html(sample_price_history)
+        assert "%" in result
+
+    def test_positive_change_class(self, sample_price_history: PriceHistory) -> None:
+        """Test that positive change gets positive class."""
+        result = _generate_price_chart_html(sample_price_history)
+        assert "positive" in result
+
+    def test_negative_change_class(self) -> None:
+        """Test that negative change gets negative class."""
+        declining_history = PriceHistory(
+            ticker="TEST",
+            period="6mo",
+            data=[
+                PricePoint(date="2024-01-01", open=160.0, high=162.0, low=159.0, close=160.0, volume=1000000),
+                PricePoint(date="2024-01-02", open=158.0, high=159.0, low=155.0, close=155.0, volume=1100000),
+            ],
+        )
+        result = _generate_price_chart_html(declining_history)
+        assert "negative" in result
+
+    def test_none_returns_empty_string(self) -> None:
+        """Test that None input returns empty string."""
+        result = _generate_price_chart_html(None)
+        assert result == ""
+
+    def test_empty_data_returns_empty_string(self) -> None:
+        """Test that empty data returns empty string."""
+        empty_history = PriceHistory(ticker="TEST", period="6mo", data=[])
+        result = _generate_price_chart_html(empty_history)
+        assert result == ""
+
+    def test_includes_svg_chart(self, sample_price_history: PriceHistory) -> None:
+        """Test that HTML includes embedded SVG chart."""
+        result = _generate_price_chart_html(sample_price_history)
+        assert "<svg" in result
+        assert "</svg>" in result
+
+
+class TestGenerateHtmlReportWithPriceChart:
+    """Tests for generate_html_report with price chart."""
+
+    @pytest.fixture
+    def sample_markdown_report(self) -> str:
+        """Create sample markdown report for testing."""
+        return """# Stock Analysis Report: NVDA
+
+## Technical Analysis
+**Price Trend:** Bullish
+
+## AI Investment Outlook
+**Recommendation:** BUY (High Confidence)
+
+---
+*Generated by Multi-Agent Stock Analyzer*"""
+
+    @pytest.fixture
+    def sample_price_history(self) -> PriceHistory:
+        """Create sample price history for testing."""
+        return PriceHistory(
+            ticker="NVDA",
+            period="6mo",
+            data=[
+                PricePoint(date="2024-01-01", open=800.0, high=810.0, low=795.0, close=805.0, volume=10000000),
+                PricePoint(date="2024-01-02", open=805.0, high=815.0, low=800.0, close=810.0, volume=11000000),
+                PricePoint(date="2024-01-03", open=810.0, high=820.0, low=805.0, close=815.0, volume=12000000),
+            ],
+        )
+
+    def test_includes_price_chart_when_provided(
+        self, sample_markdown_report: str, sample_price_history: PriceHistory
+    ) -> None:
+        """Test that HTML includes price chart when price_history is provided."""
+        result = generate_html_report(sample_markdown_report, price_history=sample_price_history)
+        assert "price-chart-container" in result
+        assert "<svg" in result
+
+    def test_no_price_chart_when_none(self, sample_markdown_report: str) -> None:
+        """Test that HTML has no price chart content when price_history is None."""
+        result = generate_html_report(sample_markdown_report, price_history=None)
+        # Check that price chart content div is not present (CSS class will be in styles)
+        assert '<div class="price-chart-container">' not in result
+
+    def test_no_price_chart_by_default(self, sample_markdown_report: str) -> None:
+        """Test that HTML has no price chart content by default."""
+        result = generate_html_report(sample_markdown_report)
+        # Check that price chart content div is not present (CSS class will be in styles)
+        assert '<div class="price-chart-container">' not in result
+
+
+class TestSaveHtmlReportWithPriceChart:
+    """Tests for save_html_report with price chart."""
+
+    @pytest.fixture
+    def sample_markdown_report(self) -> str:
+        """Create sample markdown report for testing."""
+        return """# Stock Analysis Report: TSLA
+
+## Technical Analysis
+Volatile trading pattern"""
+
+    @pytest.fixture
+    def sample_price_history(self) -> PriceHistory:
+        """Create sample price history for testing."""
+        return PriceHistory(
+            ticker="TSLA",
+            period="6mo",
+            data=[
+                PricePoint(date="2024-01-01", open=250.0, high=255.0, low=248.0, close=252.0, volume=5000000),
+                PricePoint(date="2024-01-02", open=252.0, high=260.0, low=250.0, close=258.0, volume=5500000),
+            ],
+        )
+
+    def test_saves_file_with_price_chart(
+        self, sample_markdown_report: str, sample_price_history: PriceHistory, tmp_path: Path
+    ) -> None:
+        """Test file is saved with price chart included."""
+        output_path = save_html_report(
+            sample_markdown_report, output_dir=tmp_path, price_history=sample_price_history
+        )
+        content = output_path.read_text(encoding="utf-8")
+        assert "price-chart-container" in content
+        assert "<svg" in content
+
+    def test_saves_file_without_price_chart_when_none(
+        self, sample_markdown_report: str, tmp_path: Path
+    ) -> None:
+        """Test file is saved without price chart content when None."""
+        output_path = save_html_report(sample_markdown_report, output_dir=tmp_path, price_history=None)
+        content = output_path.read_text(encoding="utf-8")
+        # Check that price chart content div is not present (CSS class will be in styles)
+        assert '<div class="price-chart-container">' not in content

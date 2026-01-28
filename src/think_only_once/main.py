@@ -4,6 +4,7 @@ import sys
 
 from think_only_once.graph.orchestrator import AnalysisResult, get_orchestrator
 from think_only_once.output import save_html_report
+from think_only_once.tools.yfinance_tools import get_price_history
 
 
 def analyze_stock(query: str) -> AnalysisResult:
@@ -45,7 +46,12 @@ def main() -> None:
     print("Running multi-agent analysis...")
 
     result = analyze_stock(query)
-    output_path = save_html_report(result.final_report)
+
+    # Fetch price history for the chart
+    print("Fetching price history...")
+    price_history = get_price_history(result.ticker, period="6mo")
+
+    output_path = save_html_report(result.final_report, price_history=price_history)
 
     print_summary(result)
     print(f"Full report saved to: {output_path}")

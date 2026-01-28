@@ -3,7 +3,7 @@
 import yfinance as yf
 from langchain_core.tools import tool
 
-from think_only_once.models import FundamentalData, TechnicalData
+from think_only_once.models import FundamentalData, PriceHistory, PricePoint, TechnicalData
 
 
 def _first_non_null(*values):
@@ -96,4 +96,37 @@ def get_fundamental_data(ticker: str) -> FundamentalData:
         dividend_yield=info.get("dividendYield"),
         sector=info.get("sector"),
         industry=info.get("industry"),
+    )
+
+
+def get_price_history(ticker: str, period: str = "6mo") -> PriceHistory:
+    """Fetch historical price data for a stock.
+
+    Args:
+        ticker: Stock ticker symbol (e.g., NVDA, AAPL, MSFT).
+        period: Time period for history (1mo, 3mo, 6mo, 1y, 2y). Defaults to 6mo.
+
+    Returns:
+        PriceHistory with list of daily OHLCV data points.
+    """
+    stock = yf.Ticker(ticker)
+    hist = stock.history(period=period)
+
+    data_points = []
+    for date, row in hist.iterrows():
+        data_points.append(
+            PricePoint(
+                date=date.strftime("%Y-%m-%d"),
+                open=float(row["Open"]),
+                high=float(row["High"]),
+                low=float(row["Low"]),
+                close=float(row["Close"]),
+                volume=int(row["Volume"]),
+            )
+        )
+
+    return PriceHistory(
+        ticker=ticker,
+        period=period,
+        data=data_points,
     )

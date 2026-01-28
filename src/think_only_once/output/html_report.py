@@ -3,6 +3,10 @@
 import re
 from datetime import datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from think_only_once.models import PriceHistory
 
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -344,6 +348,85 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             color: var(--apple-text);
         }}
 
+        .price-chart-container {{
+            background: var(--apple-card);
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }}
+
+        .price-chart-header {{
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }}
+
+        .price-chart-icon {{
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.375rem;
+            background: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%);
+        }}
+
+        .price-chart-title {{
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--apple-text);
+            letter-spacing: -0.01em;
+        }}
+
+        .price-chart-subtitle {{
+            font-size: 0.875rem;
+            color: var(--apple-text-secondary);
+            margin-top: 4px;
+        }}
+
+        .chart-svg {{
+            width: 100%;
+            height: auto;
+            display: block;
+        }}
+
+        .chart-price-info {{
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--apple-border);
+        }}
+
+        .chart-stat {{
+            text-align: center;
+        }}
+
+        .chart-stat-label {{
+            font-size: 0.75rem;
+            color: var(--apple-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 4px;
+        }}
+
+        .chart-stat-value {{
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--apple-text);
+        }}
+
+        .chart-stat-value.positive {{
+            color: var(--success);
+        }}
+
+        .chart-stat-value.negative {{
+            color: var(--danger);
+        }}
+
         @media (max-width: 734px) {{
             body {{
                 padding: 24px 16px;
@@ -388,6 +471,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 padding: 24px;
                 gap: 12px;
             }}
+
+            .price-chart-container {{
+                padding: 20px;
+            }}
+
+            .chart-price-info {{
+                flex-wrap: wrap;
+                gap: 16px;
+            }}
+
+            .chart-stat {{
+                flex: 1 1 40%;
+            }}
         }}
     </style>
 </head>
@@ -409,6 +505,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     <button class="toggle-btn" onclick="collapseAll()">Collapse All</button>
                 </div>
                 {recommendation_summary}
+                {price_chart}
                 {sections}
             </div>
             <footer class="footer">
@@ -452,6 +549,207 @@ SECTION_CONFIG = {
     "News & Sentiment Analysis": {"icon": "📰", "icon_class": "news"},
     "AI Investment Outlook": {"icon": "🎯", "icon_class": "outlook"},
 }
+
+PRICE_CHART_TEMPLATE = """
+<div class="price-chart-container">
+    <div class="price-chart-header">
+        <div class="price-chart-icon">📉</div>
+        <div>
+            <div class="price-chart-title">Price History</div>
+            <div class="price-chart-subtitle">{period_label} • {ticker}</div>
+        </div>
+    </div>
+    {svg_chart}
+    <div class="chart-price-info">
+        <div class="chart-stat">
+            <div class="chart-stat-label">Current</div>
+            <div class="chart-stat-value">${current_price:.2f}</div>
+        </div>
+        <div class="chart-stat">
+            <div class="chart-stat-label">Period High</div>
+            <div class="chart-stat-value">${high_price:.2f}</div>
+        </div>
+        <div class="chart-stat">
+            <div class="chart-stat-label">Period Low</div>
+            <div class="chart-stat-value">${low_price:.2f}</div>
+        </div>
+        <div class="chart-stat">
+            <div class="chart-stat-label">Change</div>
+            <div class="chart-stat-value {change_class}">{change_sign}{change_pct:.1f}%</div>
+        </div>
+    </div>
+</div>
+"""
+
+
+def _generate_svg_chart(price_history: "PriceHistory") -> str:
+    """Generate an SVG line chart from price history data.
+
+    Args:
+        price_history: PriceHistory model with OHLCV data points.
+
+    Returns:
+        SVG string for the price chart.
+    """
+    if not price_history.data:
+        return ""
+
+    # Chart dimensions
+    width = 900
+    height = 300
+    padding_left = 60
+    padding_right = 20
+    padding_top = 20
+    padding_bottom = 40
+
+    chart_width = width - padding_left - padding_right
+    chart_height = height - padding_top - padding_bottom
+
+    # Extract closing prices and dates
+    closes = [p.close for p in price_history.data]
+    dates = [p.date for p in price_history.data]
+
+    min_price = min(closes) * 0.98  # Add 2% padding
+    max_price = max(closes) * 1.02
+
+    price_range = max_price - min_price
+    if price_range == 0:
+        price_range = 1  # Avoid division by zero
+
+    # Calculate points for the line
+    points = []
+    for i, close in enumerate(closes):
+        x = padding_left + (i / (len(closes) - 1)) * chart_width if len(closes) > 1 else padding_left + chart_width / 2
+        y = padding_top + (1 - (close - min_price) / price_range) * chart_height
+        points.append((x, y))
+
+    # Create path for the line
+    path_d = f"M {points[0][0]:.1f} {points[0][1]:.1f}"
+    for x, y in points[1:]:
+        path_d += f" L {x:.1f} {y:.1f}"
+
+    # Create gradient fill path
+    fill_path_d = path_d + f" L {points[-1][0]:.1f} {padding_top + chart_height} L {points[0][0]:.1f} {padding_top + chart_height} Z"
+
+    # Determine chart color based on price trend
+    start_price = closes[0]
+    end_price = closes[-1]
+    is_positive = end_price >= start_price
+    line_color = "#34c759" if is_positive else "#ff3b30"
+    gradient_id = "chartGradient"
+
+    # Generate Y-axis labels (5 labels)
+    y_labels = []
+    for i in range(5):
+        price = min_price + (price_range * i / 4)
+        y = padding_top + chart_height - (i / 4) * chart_height
+        y_labels.append((y, price))
+
+    # Generate X-axis labels (show ~5 dates)
+    x_labels = []
+    step = max(1, len(dates) // 4)
+    for i in range(0, len(dates), step):
+        x = padding_left + (i / (len(dates) - 1)) * chart_width if len(dates) > 1 else padding_left + chart_width / 2
+        date_str = dates[i][5:]  # MM-DD format
+        x_labels.append((x, date_str))
+
+    # Build SVG
+    svg = f"""<svg class="chart-svg" viewBox="0 0 {width} {height}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="{gradient_id}" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:{line_color};stop-opacity:0.3" />
+            <stop offset="100%" style="stop-color:{line_color};stop-opacity:0.05" />
+        </linearGradient>
+    </defs>
+
+    <!-- Grid lines -->
+    <g stroke="#e5e5e7" stroke-width="1">"""
+
+    for y, _ in y_labels:
+        svg += f'\n        <line x1="{padding_left}" y1="{y:.1f}" x2="{width - padding_right}" y2="{y:.1f}" />'
+
+    svg += """
+    </g>
+
+    <!-- Y-axis labels -->
+    <g fill="#86868b" font-size="11" font-family="-apple-system, BlinkMacSystemFont, sans-serif" text-anchor="end">"""
+
+    for y, price in y_labels:
+        svg += f'\n        <text x="{padding_left - 10}" y="{y + 4:.1f}">${price:,.0f}</text>'
+
+    svg += """
+    </g>
+
+    <!-- X-axis labels -->
+    <g fill="#86868b" font-size="11" font-family="-apple-system, BlinkMacSystemFont, sans-serif" text-anchor="middle">"""
+
+    for x, date_str in x_labels:
+        svg += f'\n        <text x="{x:.1f}" y="{height - 10}">{date_str}</text>'
+
+    svg += f"""
+    </g>
+
+    <!-- Gradient fill -->
+    <path d="{fill_path_d}" fill="url(#{gradient_id})" />
+
+    <!-- Price line -->
+    <path d="{path_d}" fill="none" stroke="{line_color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- End point dot -->
+    <circle cx="{points[-1][0]:.1f}" cy="{points[-1][1]:.1f}" r="5" fill="{line_color}" />
+    <circle cx="{points[-1][0]:.1f}" cy="{points[-1][1]:.1f}" r="3" fill="white" />
+</svg>"""
+
+    return svg
+
+
+def _generate_price_chart_html(price_history: "PriceHistory") -> str:
+    """Generate complete price chart HTML section.
+
+    Args:
+        price_history: PriceHistory model with OHLCV data points.
+
+    Returns:
+        HTML string for the price chart section, or empty string if no data.
+    """
+    if not price_history or not price_history.data:
+        return ""
+
+    svg_chart = _generate_svg_chart(price_history)
+    if not svg_chart:
+        return ""
+
+    closes = [p.close for p in price_history.data]
+    current_price = closes[-1]
+    high_price = max(closes)
+    low_price = min(closes)
+    start_price = closes[0]
+
+    change_pct = ((current_price - start_price) / start_price) * 100 if start_price else 0
+    change_class = "positive" if change_pct >= 0 else "negative"
+    change_sign = "+" if change_pct >= 0 else ""
+
+    # Period label mapping
+    period_labels = {
+        "1mo": "1 Month",
+        "3mo": "3 Months",
+        "6mo": "6 Months",
+        "1y": "1 Year",
+        "2y": "2 Years",
+    }
+    period_label = period_labels.get(price_history.period, price_history.period)
+
+    return PRICE_CHART_TEMPLATE.format(
+        ticker=price_history.ticker,
+        period_label=period_label,
+        svg_chart=svg_chart,
+        current_price=current_price,
+        high_price=high_price,
+        low_price=low_price,
+        change_pct=abs(change_pct),
+        change_class=change_class,
+        change_sign=change_sign,
+    )
 
 
 def _markdown_to_html(text: str) -> str:
@@ -626,11 +924,12 @@ def _extract_recommendation(sections: list[tuple[str, str]]) -> str:
     return ""
 
 
-def generate_html_report(markdown_report: str) -> str:
+def generate_html_report(markdown_report: str, price_history: "PriceHistory | None" = None) -> str:
     """Generate a styled HTML report from markdown.
 
     Args:
         markdown_report: The markdown formatted analysis report.
+        price_history: Optional price history data for chart visualization.
 
     Returns:
         Complete HTML document as string.
@@ -639,6 +938,9 @@ def generate_html_report(markdown_report: str) -> str:
 
     # Extract recommendation summary
     recommendation_summary = _extract_recommendation(sections)
+
+    # Generate price chart HTML
+    price_chart_html = _generate_price_chart_html(price_history) if price_history else ""
 
     # Generate section HTML
     sections_html = []
@@ -665,18 +967,24 @@ def generate_html_report(markdown_report: str) -> str:
         date=date_str,
         time=time_str,
         recommendation_summary=recommendation_summary,
+        price_chart=price_chart_html,
         sections="\n".join(sections_html),
     )
 
     return html
 
 
-def save_html_report(markdown_report: str, output_dir: Path | str | None = None) -> Path:
+def save_html_report(
+    markdown_report: str,
+    output_dir: Path | str | None = None,
+    price_history: "PriceHistory | None" = None,
+) -> Path:
     """Save the analysis report as an HTML file.
 
     Args:
         markdown_report: The markdown formatted analysis report.
         output_dir: Directory to save the report. Defaults to 'reports' in project root.
+        price_history: Optional price history data for chart visualization.
 
     Returns:
         Path to the saved HTML file.
@@ -698,7 +1006,7 @@ def save_html_report(markdown_report: str, output_dir: Path | str | None = None)
     output_path = output_dir / filename
 
     # Generate and save HTML
-    html_content = generate_html_report(markdown_report)
+    html_content = generate_html_report(markdown_report, price_history=price_history)
     output_path.write_text(html_content, encoding="utf-8")
 
     return output_path
