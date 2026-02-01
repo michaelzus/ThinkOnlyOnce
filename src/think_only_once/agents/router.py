@@ -13,6 +13,7 @@ class RouterDecision(BaseModel):
     run_technical: bool = Field(description="True if user needs price/trend/volume analysis")
     run_fundamental: bool = Field(description="True if user needs valuation/financial health analysis")
     run_news: bool = Field(description="True if user needs news/sentiment analysis")
+    run_macro: bool = Field(default=True, description="True if user needs market-wide macro analysis (usually enabled)")
     reasoning: str = Field(description="Brief explanation of the routing decision")
 
 
@@ -26,16 +27,18 @@ Analysis types:
 - TECHNICAL: Price trends, moving averages, volume, support/resistance, chart patterns
 - FUNDAMENTAL: P/E ratio, market cap, revenue, earnings, valuation, financials
 - NEWS: Recent headlines, sentiment, market news, events, announcements
+- MACRO: Market-wide conditions, SPY/VIX levels, sector performance, Fear & Greed
 
 Rules:
 - If the query is vague like "analyze X" or "tell me about X", enable ALL analysis types
 - If the query mentions specific aspects, only enable relevant types
+- MACRO is usually enabled for comprehensive analysis (market context is valuable)
 - Always extract the ticker symbol (convert company names to tickers if needed)
 
 Examples:
-- "What's the news on NVDA?" → run_news=True only
-- "Is AAPL overvalued?" → run_fundamental=True only
-- "TSLA price and trends" → run_technical=True only
+- "What's the news on NVDA?" → run_news=True, run_macro=True
+- "Is AAPL overvalued?" → run_fundamental=True, run_macro=True
+- "TSLA price and trends" → run_technical=True, run_macro=True
 - "Full analysis of MSFT" → all True
 - "Should I buy GOOGL?" → all True (needs comprehensive view)
 """

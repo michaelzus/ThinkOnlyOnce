@@ -34,6 +34,7 @@ dependencies = [
     "pydantic-settings>=2.0.0",
     "pyyaml>=6.0.0",
     "python-dotenv>=1.0.0",
+    "requests>=2.31.0",  # For CNN Fear & Greed Index API
 ]
 
 [project.optional-dependencies]
@@ -48,6 +49,7 @@ dev = [
     "pydocstyle>=6.0.0",
     "darglint>=1.8.0",
     "types-PyYAML>=6.0.0",  # Type stubs for PyYAML
+    "types-requests>=2.31.0",  # Type stubs for requests
 ]
 
 [project.scripts]

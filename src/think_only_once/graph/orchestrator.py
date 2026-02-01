@@ -7,6 +7,7 @@ from langgraph.graph import END, START, StateGraph
 
 from think_only_once.agents.fundamental_analyst import create_fundamental_analyst
 from think_only_once.agents.investment_analyst import generate_investment_outlook
+from think_only_once.agents.macro_analyst import create_macro_analyst
 from think_only_once.agents.news_analyst import create_news_analyst
 from think_only_once.agents.router import RouterDecision, route_query
 from think_only_once.agents.technical_analyst import create_technical_analyst
@@ -53,6 +54,7 @@ def print_router_decision(decision: RouterDecision) -> None:
     print(f"Run Technical Analysis: {'Yes' if decision.run_technical else 'No'}")
     print(f"Run Fundamental Analysis: {'Yes' if decision.run_fundamental else 'No'}")
     print(f"Run News Analysis: {'Yes' if decision.run_news else 'No'}")
+    print(f"Run Macro Analysis: {'Yes' if decision.run_macro else 'No'}")
     print(f"Reasoning: {decision.reasoning}")
     print("-" * 60 + "\n")
 
@@ -69,6 +71,7 @@ class StockAnalyzerOrchestrator:
         self._technical_agent = None
         self._fundamental_agent = None
         self._news_agent = None
+        self._macro_agent = None
         self._graph: Any | None = None
 
     @property
@@ -104,6 +107,17 @@ class StockAnalyzerOrchestrator:
             self._news_agent = create_news_analyst()
         return self._news_agent
 
+    @property
+    def macro_agent(self):
+        """Get or create the macro analyst agent.
+
+        Returns:
+            Compiled macro analyst agent.
+        """
+        if self._macro_agent is None:
+            self._macro_agent = create_macro_analyst()
+        return self._macro_agent
+
     def router_node(self, state: AnalysisState) -> dict:
         """Smart router: analyze query and decide which agents to invoke.
 
@@ -120,6 +134,7 @@ class StockAnalyzerOrchestrator:
             "run_technical": decision.run_technical,
             "run_fundamental": decision.run_fundamental,
             "run_news": decision.run_news,
+            "run_macro": decision.run_macro,
         }
 
     def technical_analysis_node(self, state: AnalysisState) -> dict:
@@ -176,6 +191,27 @@ class StockAnalyzerOrchestrator:
         content = result["messages"][-1].content
         return {"news_analysis": content}
 
+    def macro_analysis_node(self, state: AnalysisState) -> dict:
+        """Run macro analysis if requested by router.
+
+        Args:
+            state: Current analysis state.
+
+        Returns:
+            Dictionary with macro_analysis prose.
+        """
+        if not state.get("run_macro"):
+            return {"macro_analysis": None}
+
+        # Run macro agent for context (LLM-based analysis)
+        # The agent has get_market_indices tool and will fetch sector ETF data automatically
+        result = self.macro_agent.invoke({
+            "messages": [{"role": "user", "content": f"Assess macro conditions for {state['ticker']}"}]
+        })
+        content = result["messages"][-1].content
+
+        return {"macro_analysis": content}
+
     def aggregator_node(self, state: AnalysisState) -> dict:
         """Compile final report from all analyses.
 
@@ -195,6 +231,9 @@ class StockAnalyzerOrchestrator:
 
         if state.get("news_analysis"):
             sections.append(f"## News & Sentiment Analysis\n{state['news_analysis']}")
+
+        if state.get("macro_analysis"):
+            sections.append(f"## Macro Analysis\n{state['macro_analysis']}")
 
         if state.get("ai_outlook"):
             sections.append(f"## AI Investment Outlook\n{state['ai_outlook']}")
@@ -222,6 +261,7 @@ class StockAnalyzerOrchestrator:
             technical_analysis=state.get("technical_analysis"),
             fundamental_analysis=state.get("fundamental_analysis"),
             news_analysis=state.get("news_analysis"),
+            macro_analysis=state.get("macro_analysis"),
         )
         return {"ai_outlook": ai_outlook}
 
@@ -243,6 +283,7 @@ class StockAnalyzerOrchestrator:
         workflow.add_node("technical_analyst", self.technical_analysis_node)
         workflow.add_node("fundamental_analyst", self.fundamental_analysis_node)
         workflow.add_node("news_analyst", self.news_analysis_node)
+        workflow.add_node("macro_analyst", self.macro_analysis_node)
         workflow.add_node("aggregator", self.aggregator_node)
         workflow.add_node("investment_analyst", self.investment_analyst_node)
 
@@ -253,11 +294,13 @@ class StockAnalyzerOrchestrator:
         workflow.add_edge("router", "technical_analyst")
         workflow.add_edge("router", "fundamental_analyst")
         workflow.add_edge("router", "news_analyst")
+        workflow.add_edge("router", "macro_analyst")
 
         # Fan-in: all analysts → investment_analyst
         workflow.add_edge("technical_analyst", "investment_analyst")
         workflow.add_edge("fundamental_analyst", "investment_analyst")
         workflow.add_edge("news_analyst", "investment_analyst")
+        workflow.add_edge("macro_analyst", "investment_analyst")
 
         # Sequential: investment_analyst → aggregator → END
         workflow.add_edge("investment_analyst", "aggregator")
@@ -287,9 +330,11 @@ class StockAnalyzerOrchestrator:
             "run_technical": False,
             "run_fundamental": False,
             "run_news": False,
+            "run_macro": False,
             "technical_analysis": None,
             "fundamental_analysis": None,
             "news_analysis": None,
+            "macro_analysis": None,
             "ai_outlook": None,
             "final_report": None,
             "messages": [],

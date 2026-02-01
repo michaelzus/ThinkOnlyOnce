@@ -105,9 +105,11 @@ def sample_analysis_state():
         "run_technical": True,
         "run_fundamental": True,
         "run_news": True,
+        "run_macro": True,
         "technical_analysis": None,
         "fundamental_analysis": None,
         "news_analysis": None,
+        "macro_analysis": None,
         "ai_outlook": None,
         "final_report": None,
         "messages": [],
@@ -123,9 +125,11 @@ def completed_analysis_state():
         "run_technical": True,
         "run_fundamental": True,
         "run_news": True,
+        "run_macro": True,
         "technical_analysis": "Bullish trend",
         "fundamental_analysis": "Overvalued but strong growth",
         "news_analysis": "Positive sentiment",
+        "macro_analysis": "Market conditions favorable",
         "ai_outlook": "BUY recommendation with $950 target",
         "final_report": "# Stock Analysis Report: NVDA\n...",
         "messages": [],
@@ -142,5 +146,34 @@ def mock_router_decision():
         run_technical=True,
         run_fundamental=True,
         run_news=True,
+        run_macro=True,
         reasoning="User requested full analysis",
     )
+
+
+@pytest.fixture
+def mock_yfinance_market_ticker():
+    """Create mock yfinance Ticker for market indices (SPY, VIX)."""
+    mock_ticker = MagicMock()
+    mock_ticker.fast_info = {
+        "last_price": 450.50,
+        "previous_close": 448.00,
+        "fifty_day_average": 445.00,
+        "two_hundred_day_average": 430.00,
+    }
+    mock_ticker.info = {
+        "regularMarketPrice": 450.50,
+        "fiftyDayAverage": 445.00,
+        "twoHundredDayAverage": 430.00,
+        "regularMarketChangePercent": 0.56,
+    }
+    return mock_ticker
+
+
+@pytest.fixture
+def mock_ddg_news():
+    """Create mock DuckDuckGo news results for geopolitical news."""
+    return [
+        {"title": "Global tensions rise", "body": "Geopolitical risks increase market volatility..."},
+        {"title": "Trade concerns", "body": "Tariff discussions impact stocks..."},
+    ]
