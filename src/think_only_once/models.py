@@ -97,3 +97,45 @@ class PriceHistory(BaseModel):
     ticker: str = Field(description="Stock ticker symbol")
     period: str = Field(description="Time period (e.g., 6mo, 1y)")
     data: list[PricePoint] = Field(default_factory=list, description="Historical price data points")
+
+
+# Macro Market Models
+
+
+class FearGreedData(BaseModel):
+    """CNN Fear & Greed Index data."""
+
+    value: int | None = None  # 0-100
+    label: str | None = None  # Extreme Fear, Fear, Neutral, Greed, Extreme Greed
+
+
+class MarketIndicesData(BaseModel):
+    """Market indices data for macro risk assessment."""
+
+    # SPY data
+    spy_price: float | None = Field(default=None, description="Current SPY price")
+    spy_50d_ma: float | None = Field(default=None, description="SPY 50-day moving average")
+    spy_200d_ma: float | None = Field(default=None, description="SPY 200-day moving average")
+    spy_change_pct: float | None = Field(default=None, description="SPY daily change %")
+
+    # VIX data
+    vix_level: float | None = Field(default=None, description="Current VIX level")
+    vix_change_pct: float | None = Field(default=None, description="VIX daily change %")
+
+    # Sector ETF data
+    sector_etf: str | None = Field(default=None, description="Sector ETF symbol")
+    sector_price: float | None = Field(default=None, description="Sector ETF price")
+    sector_50d_ma: float | None = Field(default=None, description="Sector ETF 50-day MA")
+    sector_change_pct: float | None = Field(default=None, description="Sector ETF daily change %")
+
+    # Fear & Greed (informational)
+    fear_greed_value: int | None = Field(default=None, description="CNN Fear & Greed Index (0-100)")
+    fear_greed_label: str | None = Field(default=None, description="Fear & Greed label")
+
+
+class GeopoliticalNewsData(BaseModel):
+    """Geopolitical news search results."""
+
+    headlines: list[str] = Field(default_factory=list, description="News headlines")
+    snippets: list[str] = Field(default_factory=list, description="News snippets")
+    search_query: str = Field(default="", description="Search query used")

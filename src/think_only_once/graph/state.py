@@ -16,11 +16,13 @@ class AnalysisState(TypedDict):
     run_technical: bool
     run_fundamental: bool
     run_news: bool
+    run_macro: bool
 
-    # Agent outputs
+    # Agent outputs (prose from LLM agents)
     technical_analysis: str | None
     fundamental_analysis: str | None
     news_analysis: str | None
+    macro_analysis: str | None
 
     # Investment Analyst output
     ai_outlook: str | None

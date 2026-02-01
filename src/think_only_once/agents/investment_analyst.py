@@ -20,6 +20,7 @@ Guidelines:
 - Be specific and actionable in your recommendations
 - Base price targets on available fundamental data (P/E, growth rates, etc.)
 - Consider both upside potential and downside risks
+- Consider macro conditions (market health, VIX, sentiment) in your risk assessment
 - If data is limited, acknowledge uncertainty in your confidence level
 
 ---
@@ -34,6 +35,9 @@ Fundamental Analysis:
 
 News & Sentiment Analysis:
 {news_analysis}
+
+Macro Analysis:
+{macro_analysis}
 
 ---
 
@@ -76,6 +80,7 @@ def generate_investment_outlook(
     technical_analysis: str | None,
     fundamental_analysis: str | None,
     news_analysis: str | None,
+    macro_analysis: str | None = None,
 ) -> str:
     """Generate an AI-powered investment outlook.
 
@@ -84,6 +89,7 @@ def generate_investment_outlook(
         technical_analysis: Technical analysis results (or None if not available).
         fundamental_analysis: Fundamental analysis results (or None if not available).
         news_analysis: News/sentiment analysis results (or None if not available).
+        macro_analysis: Macro analysis results (or None if not available).
 
     Returns:
         Formatted investment outlook string.
@@ -95,6 +101,7 @@ def generate_investment_outlook(
         "technical_analysis": technical_analysis or "Not available",
         "fundamental_analysis": fundamental_analysis or "Not available",
         "news_analysis": news_analysis or "Not available",
+        "macro_analysis": macro_analysis or "Not available",
     })
 
     return result.content

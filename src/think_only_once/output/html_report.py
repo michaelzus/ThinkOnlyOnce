@@ -230,6 +230,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             background: linear-gradient(135deg, #ff9f0a 0%, #ff9500 100%);
         }}
 
+        .section-icon.macro {{
+            background: linear-gradient(135deg, #64d2ff 0%, #5ac8fa 100%);
+        }}
+
         .section-icon.outlook {{
             background: linear-gradient(135deg, #0a84ff 0%, #0071e3 100%);
         }}
@@ -547,6 +551,7 @@ SECTION_CONFIG = {
     "Technical Analysis": {"icon": "📈", "icon_class": "technical"},
     "Fundamental Analysis": {"icon": "📊", "icon_class": "fundamental"},
     "News & Sentiment Analysis": {"icon": "📰", "icon_class": "news"},
+    "Macro Analysis": {"icon": "🌍", "icon_class": "macro"},
     "AI Investment Outlook": {"icon": "🎯", "icon_class": "outlook"},
 }
 
