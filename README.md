@@ -15,7 +15,7 @@ This project was created to demonstrate **LangChain** and **LangGraph** capabili
 ## Features
 
 - **Smart Routing**: LLM-based query router that determines which analysis agents to invoke
-- **Multi-Agent Architecture**: Specialized agents for technical, fundamental, and news analysis
+- **Multi-Agent Architecture**: Specialized agents for technical, fundamental, news, and macro analysis
 - **AI Investment Outlook**: Synthesizes all analyses into actionable investment recommendations
 - **Flexible Configuration**: YAML-based configuration for LLM settings
 
@@ -59,7 +59,7 @@ thinkonlyonce "GOOGL price action and recent headlines"
 ```mermaid
 flowchart LR
     A[User Query] --> B[Smart Router]
-    B --> C["Technical, Fundamental,<br/>News Analysts"]
+    B --> C["Technical, Fundamental,<br/>News, Macro Analysts"]
     C --> D[Investment Analyst]
     D --> E[Aggregator]
     E --> F[Report]
@@ -75,6 +75,7 @@ The system uses a supervisor pattern where an LLM-based router analyzes the user
 | Technical Analyst | Price & volume analysis | yfinance |
 | Fundamental Analyst | Financial health analysis | yfinance |
 | News Analyst | Market sentiment | DuckDuckGo |
+| Macro Analyst | Market-wide risk context (SPY, VIX, Fear & Greed) | yfinance, CNN API, DuckDuckGo |
 | Investment Analyst | AI outlook & recommendations | LLM |
 
 ## Documentation
