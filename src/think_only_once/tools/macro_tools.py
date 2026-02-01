@@ -6,6 +6,7 @@ and geopolitical news search.
 
 import requests
 import yfinance as yf
+from ddgs import DDGS
 from langchain_core.tools import tool
 
 from think_only_once.models import FearGreedData, GeopoliticalNewsData, MarketIndicesData
@@ -179,8 +180,6 @@ def search_geopolitical_news() -> GeopoliticalNewsData:
     Returns:
         GeopoliticalNewsData with headlines and snippets.
     """
-    from ddgs import DDGS
-
     query = "geopolitical risk market impact news today"
 
     try:

@@ -22,12 +22,15 @@ class TestAnalysisWorkflow:
         ) as mock_fund, patch(
             "think_only_once.graph.orchestrator.create_news_analyst"
         ) as mock_news, patch(
+            "think_only_once.graph.orchestrator.create_macro_analyst"
+        ) as mock_macro, patch(
             "think_only_once.graph.orchestrator.generate_investment_outlook"
         ) as mock_outlook:
             mock_route.return_value.ticker = "NVDA"
             mock_route.return_value.run_technical = True
             mock_route.return_value.run_fundamental = True
             mock_route.return_value.run_news = True
+            mock_route.return_value.run_macro = True
 
             tech_msg = MagicMock()
             tech_msg.content = "Technical analysis"
@@ -44,9 +47,15 @@ class TestAnalysisWorkflow:
             news_agent = MagicMock()
             news_agent.invoke.return_value = {"messages": [news_msg]}
 
+            macro_msg = MagicMock()
+            macro_msg.content = "Macro analysis"
+            macro_agent = MagicMock()
+            macro_agent.invoke.return_value = {"messages": [macro_msg]}
+
             mock_tech.return_value = tech_agent
             mock_fund.return_value = fund_agent
             mock_news.return_value = news_agent
+            mock_macro.return_value = macro_agent
             mock_outlook.return_value = (
                 "**Recommendation:** BUY (High Confidence)\n"
                 "**Price Target:** $150 (+10% from current)\n"
@@ -71,12 +80,15 @@ class TestAnalysisWorkflow:
         ) as mock_fund, patch(
             "think_only_once.graph.orchestrator.create_news_analyst"
         ) as mock_news, patch(
+            "think_only_once.graph.orchestrator.create_macro_analyst"
+        ) as mock_macro, patch(
             "think_only_once.graph.orchestrator.generate_investment_outlook"
         ) as mock_outlook:
             mock_route.return_value.ticker = "AAPL"
             mock_route.return_value.run_technical = True
             mock_route.return_value.run_fundamental = False
             mock_route.return_value.run_news = False
+            mock_route.return_value.run_macro = False
 
             tech_msg = MagicMock()
             tech_msg.content = "Technical analysis"
@@ -85,6 +97,7 @@ class TestAnalysisWorkflow:
             mock_tech.return_value = tech_agent
             mock_fund.return_value = MagicMock()
             mock_news.return_value = MagicMock()
+            mock_macro.return_value = MagicMock()
             mock_outlook.return_value = (
                 "**Recommendation:** HOLD (Medium Confidence)\n"
                 "**Price Target:** $180 (+5% from current)\n"
