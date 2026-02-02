@@ -30,15 +30,16 @@ class TestGetLLM:
         # Clear cache to ensure fresh config load
         from think_only_once.config.settings import get_settings
         get_settings.cache_clear()
+        settings = get_settings()
         
         with patch("think_only_once.agents.base.ChatOpenAI") as mock_chat:
             mock_chat.return_value = MagicMock()
             get_llm()
 
             call_kwargs = mock_chat.call_args.kwargs
-            assert call_kwargs["model"] == "gpt-4o-mini"
-            assert call_kwargs["temperature"] == 0.2
-            assert call_kwargs["max_tokens"] == 1024
+            assert call_kwargs["model"] == settings.llm.model
+            assert call_kwargs["temperature"] == settings.llm.temperature
+            assert call_kwargs["max_tokens"] == settings.llm.max_tokens
 
     def test_get_llm_prefers_config_api_key(self, mock_env_api_key) -> None:
         """Test that config API key takes precedence over env var."""

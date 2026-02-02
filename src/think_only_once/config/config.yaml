@@ -16,3 +16,13 @@ llm:
 
 agents:
   verbose: false
+
+prompts:
+  set: "stable"
+  versions:
+    router: "1.0.1"
+    technical_analyst: "1.1.1"
+    fundamental_analyst: "1.1.1"
+    news_analyst: "1.1.1"
+    macro_analyst: "1.0.0"
+    investment_analyst: "1.0.1"

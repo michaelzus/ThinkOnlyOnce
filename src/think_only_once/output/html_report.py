@@ -852,7 +852,7 @@ def _markdown_to_html(text: str) -> str:
 def _parse_markdown_report(markdown_report: str) -> tuple[str, list[tuple[str, str]]]:
     """Parse markdown report into ticker and sections.
 
-    Only recognizes the 4 main section headers. Any other ## headers within the content
+    Only recognizes `SECTION_CONFIG` keys as main section headers. Any other ## headers within the content
     are converted to ### subsections to avoid creating extra section cards.
 
     Args:

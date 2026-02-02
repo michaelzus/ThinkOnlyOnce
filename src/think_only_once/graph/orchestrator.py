@@ -256,6 +256,22 @@ class StockAnalyzerOrchestrator:
         Returns:
             Dictionary with ai_outlook.
         """
+        ticker = (state.get("ticker") or "").strip()
+        if not ticker or ticker.upper() == "UNKNOWN":
+            ai_outlook = (
+                "**Recommendation:** N/A (Low Confidence)\n\n"
+                "**Price Target:** N/A (N/A from current)\n"
+                "- Ticker was not provided or could not be identified. Please specify a stock ticker (e.g., NVDA, AAPL).\n\n"
+                "**Risk Assessment:** HIGH\n"
+                "- Key Risks:\n"
+                "  1. Unknown ticker / ambiguous query\n"
+                "  2. Missing inputs for analysis\n"
+                "  3. Potentially incorrect assumptions if we proceed\n\n"
+                "**Investment Thesis:**\n"
+                "Provide a ticker and (optionally) what you care about (valuation, trend, news, macro) to generate an actionable outlook.\n"
+            )
+            return {"ai_outlook": ai_outlook}
+
         ai_outlook = generate_investment_outlook(
             ticker=state["ticker"],
             technical_analysis=state.get("technical_analysis"),
