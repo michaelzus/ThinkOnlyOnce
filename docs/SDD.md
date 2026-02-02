@@ -2,9 +2,9 @@
 
 ## Stock Market Multi-Agent Analysis System
 
-**Version:** 1.0  
-**Status:** Draft  
-**Purpose:** Educational demonstration of agentic coding concepts
+**Version:** 2.0  
+**Status:** Active  
+**Purpose:** Multi-agent stock analysis system for personal use and portfolio demonstration
 
 ---
 
@@ -14,7 +14,8 @@
 2. [System Architecture](#2-system-architecture)
 3. [Component Specifications](#3-component-specifications)
 4. [Data Models](#4-data-models)
-5. [Appendix](#5-appendix)
+5. [Output Formats](#5-output-formats)
+6. [Appendix](#6-appendix)
 
 ---
 
@@ -22,7 +23,7 @@
 
 ### 1.1 Project Goal
 
-Build a minimal, educational multi-agent system that analyzes US equity stocks using specialized AI agents orchestrated by LangGraph. The system demonstrates core agentic coding concepts in a digestible format.
+Build a multi-agent system that analyzes US equity stocks using specialized AI agents orchestrated by LangGraph. Originally created as an educational demonstration for colleagues, the project evolved into a practical tool for personal stock research and portfolio showcase.
 
 ### 1.2 Key Takeaways
 
@@ -51,33 +52,38 @@ flowchart TB
         Router -->|conditional| TA
         Router -->|conditional| FA
         Router -->|conditional| NA
+        Router -->|conditional| MA
         
         subgraph Agents["Analyst Agents"]
             TA["Technical<br/>Analyst"]
             FA["Fundamental<br/>Analyst"]
             NA["News<br/>Analyst"]
+            MA["Macro<br/>Analyst"]
         end
         
         subgraph Tools["Tools"]
             YF1["yfinance<br/>Tool"]
             YF2["yfinance<br/>Tool"]
             DDG["DuckDuckGo<br/>Tool"]
+            MACRO["Macro Tools<br/>(SPY, VIX, Fear&Greed)"]
         end
         
         TA --> YF1
         FA --> YF2
         NA --> DDG
+        MA --> MACRO
         
         YF1 --> IA
         YF2 --> IA
         DDG --> IA
+        MACRO --> IA
         
         IA["Investment Analyst<br/>LLM synthesizes AI outlook"]
         IA --> Agg["Aggregator<br/>Compiles final report"]
     end
 
     Input --> Router
-    Agg --> Report["FINAL ANALYSIS REPORT<br/>Includes all analyses + AI Investment Outlook"]
+    Agg --> Report["FINAL ANALYSIS REPORT<br/>Markdown + HTML with charts"]
 ```
 
 ### 2.2 LangGraph State Flow
@@ -92,10 +98,12 @@ flowchart TB
     Dispatch --> Tech["Technical<br/>(if set)"]
     Dispatch --> Fund["Fundamental<br/>(if set)"]
     Dispatch --> News["News<br/>(if set)"]
+    Dispatch --> Macro["Macro<br/>(usually enabled)"]
     
     Tech --> Invest["Investment Analyst<br/>Generates AI outlook<br/>with price target"]
     Fund --> Invest
     News --> Invest
+    Macro --> Invest
     
     Invest --> Agg["Aggregator<br/>Compiles final report"]
     
@@ -106,11 +114,13 @@ flowchart TB
 
 | User Query | Router Decision | Agents Invoked |
 |------------|-----------------|----------------|
-| "Analyze NVDA" | Full analysis | Technical, Fundamental, News |
-| "What's the news on AAPL?" | News only | News |
-| "Check TSLA technicals" | Technical only | Technical |
-| "Is MSFT overvalued?" | Fundamental | Fundamental |
-| "GOOGL price and news" | Technical + News | Technical, News |
+| "Analyze NVDA" | Full analysis | Technical, Fundamental, News, Macro |
+| "What's the news on AAPL?" | News only | News, Macro |
+| "Check TSLA technicals" | Technical only | Technical, Macro |
+| "Is MSFT overvalued?" | Fundamental | Fundamental, Macro |
+| "GOOGL price and news" | Technical + News | Technical, News, Macro |
+
+> **Note:** Macro analysis is enabled by default for most queries to provide market-wide context.
 
 ---
 
@@ -124,6 +134,7 @@ flowchart TB
 | Technical Analyst | Price & volume analysis | yfinance | Historical prices, volume, moving averages |
 | Fundamental Analyst | Financial health analysis | yfinance | P/E ratio, market cap, revenue, EPS |
 | News Analyst | Market sentiment analysis | DuckDuckGo | Recent news articles, headlines |
+| Macro Analyst | Market-wide risk context | yfinance, CNN API, DuckDuckGo | SPY, VIX, sector ETFs, Fear & Greed, geopolitical news |
 | **Investment Analyst** | AI outlook & recommendations | None (LLM only) | Synthesizes all data into investment thesis |
 
 ### 3.2 Smart Router (Supervisor)
@@ -144,6 +155,7 @@ flowchart TB
     "run_technical": True,
     "run_fundamental": False,
     "run_news": True,
+    "run_macro": True,
     "reasoning": "User asked about price and news, no valuation questions"
 }
 ```
@@ -238,7 +250,41 @@ flowchart TB
 }
 ```
 
-### 3.6 Investment Analyst Agent
+### 3.6 Macro Analyst Agent
+
+**Purpose:** Assess market-wide conditions and systemic risk factors that may impact the stock.
+
+**Tools:** `get_market_indices`, `search_geopolitical_news`
+
+**Data Points:**
+- **Market Health (SPY):** Price, 50-day MA, 200-day MA, daily change
+- **Market Volatility (VIX):** Current level, daily change
+- **Sector Performance:** Relevant sector ETF performance (e.g., XLK for Technology)
+- **Market Sentiment:** CNN Fear & Greed Index (0-100 scale)
+- **Geopolitical Risks:** Recent headlines on conflicts, sanctions, global economic concerns
+
+**Output Format:**
+```python
+{
+    "agent": "macro_analyst",
+    "analysis": {
+        "market_trend": "BULLISH",  # BULLISH | BEARISH | NEUTRAL
+        "spy_status": "Trading above 50-day and 200-day MA",
+        "vix_level": 15.2,
+        "vix_interpretation": "LOW",  # LOW (<20) | ELEVATED (20-30) | HIGH (>30)
+        "fear_greed": 65,
+        "fear_greed_label": "Greed",
+        "sector_performance": "Technology sector +1.2% today",
+        "geopolitical_risks": [
+            "Trade tensions remain elevated...",
+            "Central bank policy uncertainty..."
+        ],
+        "summary": "Market conditions are favorable with low volatility..."
+    }
+}
+```
+
+### 3.7 Investment Analyst Agent
 
 **Purpose:** Synthesize all analysis data and generate AI-powered investment outlook with actionable recommendations.
 
@@ -248,6 +294,7 @@ flowchart TB
 - Technical analysis results
 - Fundamental analysis results
 - News/sentiment analysis results
+- Macro analysis results (market conditions, volatility, sentiment)
 
 **Output Components:**
 - **Recommendation:** BUY / HOLD / SELL with confidence level
@@ -284,7 +331,7 @@ flowchart TB
 ### 4.1 LangGraph State Schema
 
 ```python
-from typing import TypedDict, Annotated, Literal
+from typing import TypedDict, Annotated
 from langgraph.graph.message import add_messages
 
 class AnalysisState(TypedDict):
@@ -298,11 +345,13 @@ class AnalysisState(TypedDict):
     run_technical: bool
     run_fundamental: bool
     run_news: bool
+    run_macro: bool
     
     # Agent outputs
     technical_analysis: str | None
     fundamental_analysis: str | None
     news_analysis: str | None
+    macro_analysis: str | None
     
     # Investment Analyst output
     ai_outlook: str | None
@@ -331,6 +380,10 @@ class RouterDecision(BaseModel):
     )
     run_news: bool = Field(
         description="True if news analysis is needed (sentiment, headlines)"
+    )
+    run_macro: bool = Field(
+        default=True,
+        description="True if macro analysis is needed (usually enabled)"
     )
     reasoning: str = Field(
         description="Brief explanation of routing decision"
@@ -373,16 +426,114 @@ class FundamentalData(BaseModel):
 class NewsData(BaseModel):
     """Output schema for news search tool."""
     
-    headlines: list[str] = Field(description="List of news headlines")
-    snippets: list[str] = Field(description="List of news snippets")
+    headlines: list[str] = Field(default_factory=list, description="List of news headlines")
+    snippets: list[str] = Field(default_factory=list, description="List of news snippets")
     search_query: str = Field(description="The search query used")
+
+
+class FearGreedData(BaseModel):
+    """CNN Fear & Greed Index data."""
+    
+    value: int | None = None  # 0-100 scale
+    label: str | None = None  # Extreme Fear, Fear, Neutral, Greed, Extreme Greed
+
+
+class MarketIndicesData(BaseModel):
+    """Market indices data for macro risk assessment."""
+    
+    # SPY (S&P 500 ETF)
+    spy_price: float | None = Field(default=None, description="Current SPY price")
+    spy_50d_ma: float | None = Field(default=None, description="SPY 50-day moving average")
+    spy_200d_ma: float | None = Field(default=None, description="SPY 200-day moving average")
+    spy_change_pct: float | None = Field(default=None, description="SPY daily change %")
+    
+    # VIX (Volatility Index)
+    vix_level: float | None = Field(default=None, description="Current VIX level")
+    vix_change_pct: float | None = Field(default=None, description="VIX daily change %")
+    
+    # Sector ETF
+    sector_etf: str | None = Field(default=None, description="Sector ETF symbol (e.g., XLK)")
+    sector_price: float | None = Field(default=None, description="Sector ETF price")
+    sector_50d_ma: float | None = Field(default=None, description="Sector ETF 50-day MA")
+    sector_change_pct: float | None = Field(default=None, description="Sector ETF daily change %")
+    
+    # Fear & Greed Index
+    fear_greed_value: int | None = Field(default=None, description="CNN Fear & Greed (0-100)")
+    fear_greed_label: str | None = Field(default=None, description="Fear & Greed label")
+
+
+class GeopoliticalNewsData(BaseModel):
+    """Geopolitical news search results."""
+    
+    headlines: list[str] = Field(default_factory=list, description="News headlines")
+    snippets: list[str] = Field(default_factory=list, description="News snippets")
+    search_query: str = Field(default="", description="Search query used")
+
+
+class PricePoint(BaseModel):
+    """Single price data point for historical chart."""
+    
+    date: str = Field(description="Date in YYYY-MM-DD format")
+    open: float = Field(description="Opening price")
+    high: float = Field(description="High price")
+    low: float = Field(description="Low price")
+    close: float = Field(description="Closing price")
+    volume: int = Field(description="Trading volume")
+
+
+class PriceHistory(BaseModel):
+    """Historical price data for chart visualization."""
+    
+    ticker: str = Field(description="Stock ticker symbol")
+    period: str = Field(description="Time period (e.g., 6mo, 1y)")
+    data: list[PricePoint] = Field(default_factory=list, description="Historical OHLCV data")
 ```
 
 ---
 
-## 5. Appendix
+## 5. Output Formats
 
-### 5.1 Glossary
+### 5.1 Markdown Report
+
+The default output is a structured markdown report with sections for each analysis type:
+
+```markdown
+# Stock Analysis Report: NVDA
+
+## Technical Analysis
+...
+
+## Fundamental Analysis
+...
+
+## News & Sentiment Analysis
+...
+
+## Macro Analysis
+...
+
+## AI Investment Outlook
+**Recommendation:** BUY (High Confidence)
+**Price Target:** $150 (+15% from current)
+**Investment Thesis:** ...
+```
+
+### 5.2 HTML Report
+
+An optional HTML report is generated with:
+- **Apple-inspired design** with clean typography and subtle gradients
+- **Interactive SVG price chart** showing historical price movement with gradient fill
+- **Collapsible sections** for each analysis type
+- **Responsive layout** for mobile and desktop
+- **Recommendation badges** with color-coded styling (green=BUY, orange=HOLD, red=SELL)
+
+The HTML report is saved to the `reports/` directory with timestamp: `{TICKER}_analysis_{YYYY-MM-DD_HHMMSS}.html`
+
+---
+
+## 6. Appendix
+
+### 6.1 Glossary
 
 | Term | Definition |
 |------|------------|
@@ -394,7 +545,7 @@ class NewsData(BaseModel):
 | **Node** | A processing step in a LangGraph (can be an agent or function) |
 | **Edge** | A connection between nodes defining execution flow |
 
-### 5.2 Design Decisions
+### 6.2 Design Decisions
 
 1. **Supervisor Pattern**: Using an LLM-based router allows intelligent query understanding rather than keyword matching.
 
@@ -412,13 +563,21 @@ class NewsData(BaseModel):
    - Standard `{"messages": [...]}` interface for consistency
    - Centralized LLM configuration via `get_llm()` while keeping agent creation explicit
 
-### 5.3 Future Extensibility
+### 6.3 Future Extensibility
+
+**Implemented (v2.0):**
+- ✅ Macro Analyst for market-wide context (SPY, VIX, Fear & Greed)
+- ✅ HTML report generation with interactive charts
+- ✅ Sector-specific ETF analysis
+
+**Potential Future Enhancements:**
 
 1. **Add more agents:**
    - Risk Assessment Agent
    - Portfolio Optimization Agent
    - Earnings Calendar Agent
    - Competitor Analysis Agent
+   - Options Flow Agent
 
 2. **Enhanced routing:**
    - Multi-turn conversations (router tracks context)
@@ -428,7 +587,6 @@ class NewsData(BaseModel):
 3. **Parallel execution:**
    - Run selected agents concurrently
    - Use `asyncio` for better performance
-   - Reduce latency from ~30s to ~10s
 
 4. **Human-in-the-loop:**
    - Router asks clarifying questions
@@ -440,7 +598,7 @@ class NewsData(BaseModel):
    - Cache frequent queries
    - Track routing accuracy
 
-### 5.4 Resources
+### 6.4 Resources
 
 - [LangChain Docs](https://python.langchain.com/docs/)
 - [LangGraph Docs](https://langchain-ai.github.io/langgraph/)
@@ -449,6 +607,6 @@ class NewsData(BaseModel):
 
 ---
 
-*Document Version: 1.0*  
+*Document Version: 2.0*  
 *Created: January 2026*  
-*Author: ThinkOnlyOnce Team*
+*Updated: February 2026*
