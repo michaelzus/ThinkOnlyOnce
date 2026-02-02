@@ -31,11 +31,19 @@ class AgentSettings(BaseSettings):
     verbose: bool = Field(default=False, description="Show agent reasoning")
 
 
+class PromptSettings(BaseSettings):
+    """Prompt configuration for version pinning."""
+
+    set: str = Field(default="stable", description="Prompt set name (e.g., stable, exp)")
+    versions: dict[str, str] = Field(default_factory=dict, description="Pinned prompt versions by prompt id")
+
+
 class Settings(BaseSettings):
     """Root settings container."""
 
     llm: LLMSettings = Field(default_factory=LLMSettings)
     agents: AgentSettings = Field(default_factory=AgentSettings)
+    prompts: PromptSettings = Field(default_factory=PromptSettings)
 
     @classmethod
     def from_yaml(cls, path: Path | str) -> "Settings":
@@ -59,6 +67,7 @@ class Settings(BaseSettings):
         return cls(
             llm=LLMSettings(**data.get("llm", {})),
             agents=AgentSettings(**data.get("agents", {})),
+            prompts=PromptSettings(**data.get("prompts", {})),
         )
 
 

@@ -2,7 +2,8 @@
 
 from unittest.mock import MagicMock, patch
 
-from think_only_once.agents.macro_analyst import MACRO_ANALYST_PROMPT, create_macro_analyst
+from think_only_once.agents.macro_analyst import create_macro_analyst
+from think_only_once.prompts import get_prompt_text
 
 
 class TestMacroAnalyst:
@@ -35,25 +36,29 @@ class TestMacroAnalystPrompt:
 
     def test_prompt_contains_vix_interpretation(self) -> None:
         """Test that prompt includes VIX interpretation guidelines."""
-        assert "VIX Interpretation" in MACRO_ANALYST_PROMPT
-        assert "Below 15" in MACRO_ANALYST_PROMPT
-        assert "Above 30" in MACRO_ANALYST_PROMPT
+        prompt = get_prompt_text("macro_analyst")
+        assert "VIX Interpretation" in prompt
+        assert "Below 15" in prompt
+        assert "Above 30" in prompt
 
     def test_prompt_contains_fear_greed_interpretation(self) -> None:
         """Test that prompt includes Fear & Greed interpretation."""
-        assert "Fear & Greed Interpretation" in MACRO_ANALYST_PROMPT
-        assert "Extreme Fear" in MACRO_ANALYST_PROMPT
-        assert "Extreme Greed" in MACRO_ANALYST_PROMPT
+        prompt = get_prompt_text("macro_analyst")
+        assert "Fear & Greed Interpretation" in prompt
+        assert "Extreme Fear" in prompt
+        assert "Extreme Greed" in prompt
 
     def test_prompt_contains_spy_trend_guidance(self) -> None:
         """Test that prompt includes SPY trend guidance."""
-        assert "SPY Trend" in MACRO_ANALYST_PROMPT
-        assert "50D" in MACRO_ANALYST_PROMPT
-        assert "200D" in MACRO_ANALYST_PROMPT
-        assert "Bullish" in MACRO_ANALYST_PROMPT
-        assert "Bearish" in MACRO_ANALYST_PROMPT
+        prompt = get_prompt_text("macro_analyst")
+        assert "SPY Trend" in prompt
+        assert "50D" in prompt
+        assert "200D" in prompt
+        assert "Bullish" in prompt
+        assert "Bearish" in prompt
 
     def test_prompt_emphasizes_objectivity(self) -> None:
         """Test that prompt emphasizes data-driven objectivity."""
-        assert "objective" in MACRO_ANALYST_PROMPT.lower()
-        assert "data-driven" in MACRO_ANALYST_PROMPT.lower()
+        prompt = get_prompt_text("macro_analyst")
+        assert "objective" in prompt.lower()
+        assert "data-driven" in prompt.lower()

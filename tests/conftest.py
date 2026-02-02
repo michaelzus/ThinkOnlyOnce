@@ -79,21 +79,38 @@ def patch_yfinance(mock_yfinance_ticker):
 
 
 @pytest.fixture
-def mock_ddg_search():
-    """Create mock DuckDuckGo search results."""
-    mock = MagicMock()
-    mock.invoke.return_value = (
-        '[{"title": "NVDA hits record high", "snippet": "NVIDIA stock reaches new ATH..."},'
-        '{"title": "AI demand surge", "snippet": "Data center revenue grows 200%..."}]'
-    )
-    return mock
+def mock_ddg_news_results():
+    """Create mock DuckDuckGo NEWS results (ddgs.news)."""
+    return [
+        {
+            "title": "NVDA hits record high",
+            "body": "NVIDIA stock reaches new ATH as AI demand accelerates across data centers.",
+            "source": "ExampleWire",
+            "date": "2026-02-02",
+            "url": "https://example.com/nvda-record-high",
+        },
+        {
+            "title": "AI demand surge lifts semiconductor outlook",
+            "body": "Analysts cite sustained capex and strong GPU demand supporting near-term revenue visibility.",
+            "source": "MarketDaily",
+            "date": "2026-02-01",
+            "url": "https://example.com/ai-demand-surge",
+        },
+    ]
 
 
 @pytest.fixture
-def patch_ddg_search(mock_ddg_search):
-    """Patch DuckDuckGoSearchResults."""
-    with patch("think_only_once.tools.search_tools.DuckDuckGoSearchResults", return_value=mock_ddg_search):
-        yield mock_ddg_search
+def patch_ddg_search(mock_ddg_news_results):
+    """Patch DDGS context manager for search_stock_news."""
+    mock_ddgs = MagicMock()
+    mock_ddgs.news.return_value = mock_ddg_news_results
+
+    mock_ctx = MagicMock()
+    mock_ctx.__enter__.return_value = mock_ddgs
+    mock_ctx.__exit__.return_value = None
+
+    with patch("think_only_once.tools.search_tools.DDGS", return_value=mock_ctx):
+        yield mock_ddgs
 
 
 @pytest.fixture

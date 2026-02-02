@@ -3,10 +3,10 @@
 from unittest.mock import MagicMock, patch
 
 from think_only_once.agents.investment_analyst import (
-    INVESTMENT_ANALYST_PROMPT,
     create_investment_analyst_chain,
     generate_investment_outlook,
 )
+from think_only_once.prompts import get_prompt_text
 
 
 class TestCreateInvestmentAnalystChain:
@@ -85,23 +85,24 @@ class TestInvestmentAnalystPrompt:
 
     def test_prompt_contains_recommendation_section(self) -> None:
         """Test prompt mentions RECOMMENDATION."""
-        assert "RECOMMENDATION" in INVESTMENT_ANALYST_PROMPT
+        assert "RECOMMENDATION" in get_prompt_text("investment_analyst")
 
     def test_prompt_contains_price_target_section(self) -> None:
         """Test prompt mentions PRICE TARGET."""
-        assert "PRICE TARGET" in INVESTMENT_ANALYST_PROMPT
+        assert "PRICE TARGET" in get_prompt_text("investment_analyst")
 
     def test_prompt_contains_risk_assessment_section(self) -> None:
         """Test prompt mentions RISK ASSESSMENT."""
-        assert "RISK ASSESSMENT" in INVESTMENT_ANALYST_PROMPT
+        assert "RISK ASSESSMENT" in get_prompt_text("investment_analyst")
 
     def test_prompt_contains_investment_thesis_section(self) -> None:
         """Test prompt mentions INVESTMENT THESIS."""
-        assert "INVESTMENT THESIS" in INVESTMENT_ANALYST_PROMPT
+        assert "INVESTMENT THESIS" in get_prompt_text("investment_analyst")
 
     def test_prompt_has_placeholders(self) -> None:
         """Test prompt has required placeholders."""
-        assert "{ticker}" in INVESTMENT_ANALYST_PROMPT
-        assert "{technical_analysis}" in INVESTMENT_ANALYST_PROMPT
-        assert "{fundamental_analysis}" in INVESTMENT_ANALYST_PROMPT
-        assert "{news_analysis}" in INVESTMENT_ANALYST_PROMPT
+        prompt = get_prompt_text("investment_analyst")
+        assert "{ticker}" in prompt
+        assert "{technical_analysis}" in prompt
+        assert "{fundamental_analysis}" in prompt
+        assert "{news_analysis}" in prompt

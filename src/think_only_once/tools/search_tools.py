@@ -1,36 +1,9 @@
 """Search tools for news and sentiment analysis."""
 
-import re
-
-from langchain_community.tools import DuckDuckGoSearchResults
+from ddgs import DDGS
 from langchain_core.tools import tool
 
 from think_only_once.models import NewsData
-
-
-def _parse_search_results(raw_results: str) -> tuple[list[str], list[str]]:
-    """Parse DuckDuckGo search results into headlines and snippets.
-
-    Args:
-        raw_results: Raw string output from DuckDuckGo search.
-
-    Returns:
-        Tuple of (headlines, snippets) lists.
-    """
-    headlines: list[str] = []
-    snippets: list[str] = []
-
-    # DuckDuckGo returns results in format: [snippet: ..., title: ..., link: ...], ...
-    title_pattern = r"title:\s*([^,\]]+)"
-    snippet_pattern = r"snippet:\s*([^,\]]+)"
-
-    titles = re.findall(title_pattern, raw_results)
-    snippet_matches = re.findall(snippet_pattern, raw_results)
-
-    headlines = [t.strip() for t in titles if t.strip()]
-    snippets = [s.strip() for s in snippet_matches if s.strip()]
-
-    return headlines, snippets
 
 
 @tool
@@ -43,14 +16,30 @@ def search_stock_news(ticker: str) -> NewsData:
     Returns:
         NewsData with headlines, snippets, and the search query used.
     """
-    search = DuckDuckGoSearchResults(num_results=10)
-    query = f"{ticker} stock news latest"
-    raw_results = search.invoke(query)
+    query = f"{ticker} stock news"
 
-    headlines, snippets = _parse_search_results(raw_results)
+    try:
+        with DDGS() as ddgs:
+            results = list(ddgs.news(query, max_results=8))
 
-    return NewsData(
-        headlines=headlines,
-        snippets=snippets,
-        search_query=query,
-    )
+        headlines: list[str] = []
+        snippets: list[str] = []
+        for r in results:
+            title = (r.get("title") or "").strip()
+            body = (r.get("body") or "").strip()
+            source = (r.get("source") or "").strip()
+            date = (r.get("date") or "").strip()
+
+            if title:
+                meta_parts = [p for p in (source, date) if p]
+                meta = f" ({', '.join(meta_parts)})" if meta_parts else ""
+                headlines.append(f"{title}{meta}")
+
+            if body:
+                cleaned = " ".join(body.split())
+                snippets.append(cleaned[:280])
+
+        return NewsData(headlines=headlines, snippets=snippets, search_query=query)
+    except Exception:
+        # Graceful degradation
+        return NewsData(headlines=[], snippets=[], search_query=query)
