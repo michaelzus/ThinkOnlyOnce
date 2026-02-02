@@ -2,15 +2,28 @@
 
 **Stock Market Multi-Agent Analysis System**
 
-An educational demonstration of agentic coding concepts using LangChain and LangGraph. This project showcases how multiple AI agents can collaborate to analyze US equity stocks.
+A multi-agent AI system built with LangChain and LangGraph that analyzes US equity stocks by coordinating specialized agents for technical, fundamental, news, and macroeconomic analysis.
+
+## The Story
+
+This project started as a colleague's demonstration of agentic coding concepts using LangChain and LangGraph. What began as an educational example to showcase multi-agent architectures quickly caught my attention. I found the concept compelling and saw real potential in it.
+
+I decided to invest more time into the project, refactoring and extending it beyond its original demo scope. What was once a simple presentation tool evolved into something I actually use for my own stock market research. Along the way, it also became a portfolio piece that demonstrates my understanding of modern AI agent patterns, clean architecture principles, and practical LLM integration.
 
 ## Purpose
 
-This project was created to demonstrate **LangChain** and **LangGraph** capabilities to colleagues. It serves as a practical example of:
+Originally created to demonstrate **LangChain** and **LangGraph** capabilities, this project now serves dual purposes:
+
+**As a Learning Resource:**
 - Building multi-agent systems with LangGraph's state management
 - Implementing intelligent routing patterns with LangChain
 - Creating modular, extensible AI agent architectures
 - Integrating real-world data sources (financial APIs, news) with LLM reasoning
+
+**As a Practical Tool:**
+- Personal stock analysis assistant for US equities
+- Quick synthesis of technical, fundamental, and sentiment data
+- Actionable investment outlook generation
 
 ## Features
 
@@ -130,4 +143,4 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-*Built with LangChain and LangGraph*
+*Built with LangChain and LangGraph — started as a demo, grew into something more.*
