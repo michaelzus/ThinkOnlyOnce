@@ -59,13 +59,15 @@ class TestStockAnalyzerOrchestrator:
         result = orchestrator.technical_analysis_node(sample_analysis_state)
         assert result["technical_analysis"] is None
 
-    def test_aggregator_node(self, completed_analysis_state) -> None:
-        """Test report aggregation."""
-        orchestrator = StockAnalyzerOrchestrator()
-        result = orchestrator.aggregator_node(completed_analysis_state)
-        assert "final_report" in result
-        assert "Stock Analysis Report" in result["final_report"]
-        assert "Technical Analysis" in result["final_report"]
+    def test_build_report(self, completed_analysis_state) -> None:
+        """Test report assembly from analysis results."""
+        report = StockAnalyzerOrchestrator._build_report(completed_analysis_state)
+        assert "Stock Analysis Report" in report
+        assert "Technical Analysis" in report
+        assert "Fundamental Analysis" in report
+        assert "News & Sentiment Analysis" in report
+        assert "Macro Analysis" in report
+        assert "AI Investment Outlook" in report
 
     def test_investment_analyst_node(self, completed_analysis_state) -> None:
         """Test AI outlook generation."""

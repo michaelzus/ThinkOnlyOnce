@@ -128,7 +128,6 @@ def sample_analysis_state():
         "news_analysis": None,
         "macro_analysis": None,
         "ai_outlook": None,
-        "final_report": None,
         "messages": [],
     }
 
@@ -148,7 +147,6 @@ def completed_analysis_state():
         "news_analysis": "Positive sentiment",
         "macro_analysis": "Market conditions favorable",
         "ai_outlook": "BUY recommendation with $950 target",
-        "final_report": "# Stock Analysis Report: NVDA\n...",
         "messages": [],
     }
 

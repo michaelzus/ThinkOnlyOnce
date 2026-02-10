@@ -24,7 +24,6 @@ class TestAnalysisState:
             "news_analysis",
             "macro_analysis",
             "ai_outlook",
-            "final_report",
             "messages",
         ]
         annotations = AnalysisState.__annotations__
@@ -45,7 +44,6 @@ class TestAnalysisState:
             "news_analysis": None,
             "macro_analysis": None,
             "ai_outlook": None,
-            "final_report": None,
             "messages": [],
         }
         assert state["ticker"] == "NVDA"
@@ -65,7 +63,6 @@ class TestAnalysisState:
             "news_analysis": "Positive sentiment",
             "macro_analysis": "Supportive macro",
             "ai_outlook": "BUY with target $200",
-            "final_report": "# Analysis Report\n...",
             "messages": [],
         }
         assert state["technical_analysis"] == "Trend is bullish"

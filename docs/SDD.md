@@ -79,11 +79,10 @@ flowchart TB
         MACRO --> IA
         
         IA["Investment Analyst<br/>LLM synthesizes AI outlook"]
-        IA --> Agg["Aggregator<br/>Compiles final report"]
     end
 
     Input --> Router
-    Agg --> Report["FINAL ANALYSIS REPORT<br/>Markdown + HTML with charts"]
+    IA --> Report["FINAL ANALYSIS REPORT<br/>Markdown + HTML with charts"]
 ```
 
 ### 2.2 LangGraph State Flow
@@ -105,9 +104,7 @@ flowchart TB
     News --> Invest
     Macro --> Invest
     
-    Invest --> Agg["Aggregator<br/>Compiles final report"]
-    
-    Agg --> End([END])
+    Invest --> End([END])
 ```
 
 ### 2.3 Router Decision Examples
@@ -355,9 +352,6 @@ class AnalysisState(TypedDict):
     
     # Investment Analyst output
     ai_outlook: str | None
-    
-    # Final output
-    final_report: str | None
     
     # Message history (for debugging)
     messages: Annotated[list, add_messages]

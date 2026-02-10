@@ -74,8 +74,7 @@ flowchart LR
     A[User Query] --> B[Smart Router]
     B --> C["Technical, Fundamental,<br/>News, Macro Analysts"]
     C --> D[Investment Analyst]
-    D --> E[Aggregator]
-    E --> F[Report]
+    D --> E[Report]
 ```
 
 The system uses a supervisor pattern where an LLM-based router analyzes the user's query and determines which specialist agents to invoke, optimizing for efficiency and relevance.

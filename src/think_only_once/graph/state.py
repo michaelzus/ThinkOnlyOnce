@@ -27,8 +27,5 @@ class AnalysisState(TypedDict):
     # Investment Analyst output
     ai_outlook: str | None
 
-    # Final output
-    final_report: str | None
-
     # Message history (for debugging)
     messages: Annotated[list, add_messages]
