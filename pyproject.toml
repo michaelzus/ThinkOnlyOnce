@@ -35,6 +35,8 @@ dependencies = [
     "pyyaml>=6.0.0",
     "python-dotenv>=1.0.0",
     "requests>=2.31.0",  # For CNN Fear & Greed Index API
+    "asciimatics>=1.15.0",  # Terminal animation (Matrix rain, effects)
+    "pyfiglet>=1.0.0",  # ASCII art text rendering
 ]
 
 [project.optional-dependencies]

@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from langchain_core.prompts import ChatPromptTemplate
 
 from think_only_once.agents.base import get_llm
+from think_only_once.enums import AgentEnum
 from think_only_once.prompts import get_prompt_text
 
 
@@ -29,7 +30,7 @@ def create_router():
 
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", get_prompt_text("router")),
+            ("system", get_prompt_text(AgentEnum.ROUTER)),
             ("human", "{query}"),
         ]
     )

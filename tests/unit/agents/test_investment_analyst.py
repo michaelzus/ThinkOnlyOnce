@@ -6,6 +6,7 @@ from think_only_once.agents.investment_analyst import (
     create_investment_analyst_chain,
     generate_investment_outlook,
 )
+from think_only_once.enums import AgentEnum
 from think_only_once.prompts import get_prompt_text
 
 
@@ -85,23 +86,23 @@ class TestInvestmentAnalystPrompt:
 
     def test_prompt_contains_recommendation_section(self) -> None:
         """Test prompt mentions RECOMMENDATION."""
-        assert "RECOMMENDATION" in get_prompt_text("investment_analyst")
+        assert "RECOMMENDATION" in get_prompt_text(AgentEnum.INVESTMENT_ANALYST)
 
     def test_prompt_contains_price_target_section(self) -> None:
         """Test prompt mentions PRICE TARGET."""
-        assert "PRICE TARGET" in get_prompt_text("investment_analyst")
+        assert "PRICE TARGET" in get_prompt_text(AgentEnum.INVESTMENT_ANALYST)
 
     def test_prompt_contains_risk_assessment_section(self) -> None:
         """Test prompt mentions RISK ASSESSMENT."""
-        assert "RISK ASSESSMENT" in get_prompt_text("investment_analyst")
+        assert "RISK ASSESSMENT" in get_prompt_text(AgentEnum.INVESTMENT_ANALYST)
 
     def test_prompt_contains_investment_thesis_section(self) -> None:
         """Test prompt mentions INVESTMENT THESIS."""
-        assert "INVESTMENT THESIS" in get_prompt_text("investment_analyst")
+        assert "INVESTMENT THESIS" in get_prompt_text(AgentEnum.INVESTMENT_ANALYST)
 
     def test_prompt_has_placeholders(self) -> None:
         """Test prompt has required placeholders."""
-        prompt = get_prompt_text("investment_analyst")
+        prompt = get_prompt_text(AgentEnum.INVESTMENT_ANALYST)
         assert "{ticker}" in prompt
         assert "{technical_analysis}" in prompt
         assert "{fundamental_analysis}" in prompt

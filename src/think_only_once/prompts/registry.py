@@ -10,18 +10,19 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from think_only_once.config.settings import get_settings
+from think_only_once.enums import AgentEnum
 
 
 @dataclass(frozen=True, slots=True)
 class PromptSpec:
     """A versioned prompt definition."""
 
-    prompt_id: str
+    prompt_id: AgentEnum
     version: str
     text: str
 
 
-def _registry() -> dict[str, dict[str, PromptSpec]]:
+def _registry() -> dict[AgentEnum, dict[str, PromptSpec]]:
     """Return the in-code prompt registry.
 
     Notes:
@@ -29,13 +30,13 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
         - Add new versions without deleting old ones.
 
     Returns:
-        Mapping of prompt id -> version -> prompt spec.
+        Mapping of agent enum -> version -> prompt spec.
     """
     # NOTE: These 1.0.0 prompts mirror the original prompts as implemented in the agents.
     return {
-        "technical_analyst": {
+        AgentEnum.TECHNICAL_ANALYST: {
             "1.0.0": PromptSpec(
-                prompt_id="technical_analyst",
+                prompt_id=AgentEnum.TECHNICAL_ANALYST,
                 version="1.0.0",
                 text=(
                     "You are a Technical Analyst specializing in stock price analysis.\n\n"
@@ -50,7 +51,7 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
                 ),
             ),
             "1.1.0": PromptSpec(
-                prompt_id="technical_analyst",
+                prompt_id=AgentEnum.TECHNICAL_ANALYST,
                 version="1.1.0",
                 text=(
                     "You are a Technical Analyst. Your job is to turn the provided technical data into a clear, "
@@ -85,7 +86,7 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
                 ),
             ),
             "1.1.1": PromptSpec(
-                prompt_id="technical_analyst",
+                prompt_id=AgentEnum.TECHNICAL_ANALYST,
                 version="1.1.1",
                 text=(
                     "You are a Technical Analyst. Your job is to turn the provided technical data into a clear, "
@@ -120,9 +121,9 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
                 ),
             ),
         },
-        "fundamental_analyst": {
+        AgentEnum.FUNDAMENTAL_ANALYST: {
             "1.0.0": PromptSpec(
-                prompt_id="fundamental_analyst",
+                prompt_id=AgentEnum.FUNDAMENTAL_ANALYST,
                 version="1.0.0",
                 text=(
                     "You are a Fundamental Analyst specializing in company valuation.\n\n"
@@ -137,7 +138,7 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
                 ),
             ),
             "1.1.0": PromptSpec(
-                prompt_id="fundamental_analyst",
+                prompt_id=AgentEnum.FUNDAMENTAL_ANALYST,
                 version="1.1.0",
                 text=(
                     "You are a Fundamental Analyst. Your job is to evaluate valuation and balance-sheet risk using "
@@ -175,7 +176,7 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
                 ),
             ),
             "1.1.1": PromptSpec(
-                prompt_id="fundamental_analyst",
+                prompt_id=AgentEnum.FUNDAMENTAL_ANALYST,
                 version="1.1.1",
                 text=(
                     "You are a Fundamental Analyst. Your job is to evaluate valuation and balance-sheet risk using "
@@ -213,9 +214,9 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
                 ),
             ),
         },
-        "news_analyst": {
+        AgentEnum.NEWS_ANALYST: {
             "1.0.0": PromptSpec(
-                prompt_id="news_analyst",
+                prompt_id=AgentEnum.NEWS_ANALYST,
                 version="1.0.0",
                 text=(
                     "You are a News Analyst specializing in market sentiment.\n\n"
@@ -230,7 +231,7 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
                 ),
             ),
             "1.1.0": PromptSpec(
-                prompt_id="news_analyst",
+                prompt_id=AgentEnum.NEWS_ANALYST,
                 version="1.1.0",
                 text=(
                     "You are a News & Sentiment Analyst. Your job is to summarize what the provided "
@@ -258,7 +259,7 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
                 ),
             ),
             "1.1.1": PromptSpec(
-                prompt_id="news_analyst",
+                prompt_id=AgentEnum.NEWS_ANALYST,
                 version="1.1.1",
                 text=(
                     "You are a News & Sentiment Analyst. Your job is to summarize what the provided "
@@ -286,9 +287,9 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
                 ),
             ),
         },
-        "macro_analyst": {
+        AgentEnum.MACRO_ANALYST: {
             "1.0.0": PromptSpec(
-                prompt_id="macro_analyst",
+                prompt_id=AgentEnum.MACRO_ANALYST,
                 version="1.0.0",
                 text=(
                     "You are a Macro Risk Analyst assessing market-wide conditions.\n\n"
@@ -319,9 +320,9 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
                 ),
             ),
         },
-        "router": {
+        AgentEnum.ROUTER: {
             "1.0.0": PromptSpec(
-                prompt_id="router",
+                prompt_id=AgentEnum.ROUTER,
                 version="1.0.0",
                 text=(
                     "You are a query router for a stock analysis system.\n\n"
@@ -347,7 +348,7 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
                 ),
             ),
             "1.0.1": PromptSpec(
-                prompt_id="router",
+                prompt_id=AgentEnum.ROUTER,
                 version="1.0.1",
                 text=(
                     "You are a query router for a stock analysis system.\n\n"
@@ -374,9 +375,9 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
                 ),
             ),
         },
-        "investment_analyst": {
+        AgentEnum.INVESTMENT_ANALYST: {
             "1.0.0": PromptSpec(
-                prompt_id="investment_analyst",
+                prompt_id=AgentEnum.INVESTMENT_ANALYST,
                 version="1.0.0",
                 text=(
                     "You are a Senior Investment Analyst with expertise in equity research.\n\n"
@@ -417,7 +418,7 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
                 ),
             ),
             "1.0.1": PromptSpec(
-                prompt_id="investment_analyst",
+                prompt_id=AgentEnum.INVESTMENT_ANALYST,
                 version="1.0.1",
                 text=(
                     "You are a Senior Investment Analyst. Your job is to synthesize the provided analyses into a clear recommendation.\n\n"
@@ -462,11 +463,11 @@ def _registry() -> dict[str, dict[str, PromptSpec]]:
     }
 
 
-def get_prompt_spec(prompt_id: str, *, version: str | None = None) -> PromptSpec:
+def get_prompt_spec(prompt_id: AgentEnum, *, version: str | None = None) -> PromptSpec:
     """Get a prompt spec by id and version (or the pinned active version).
 
     Args:
-        prompt_id: Prompt identifier (e.g. "technical_analyst").
+        prompt_id: Agent enum identifier.
         version: Explicit version override. If None, uses the pinned version from settings.
 
     Returns:
@@ -496,11 +497,11 @@ def get_prompt_spec(prompt_id: str, *, version: str | None = None) -> PromptSpec
     return versions[selected_version]
 
 
-def get_prompt_text(prompt_id: str, *, version: str | None = None) -> str:
+def get_prompt_text(prompt_id: AgentEnum, *, version: str | None = None) -> str:
     """Return prompt text for a prompt id/version.
 
     Args:
-        prompt_id: Prompt identifier (e.g. "technical_analyst").
+        prompt_id: Agent enum identifier.
         version: Explicit version override. If None, uses the pinned version from settings.
 
     Returns:

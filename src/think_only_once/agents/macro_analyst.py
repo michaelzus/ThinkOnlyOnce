@@ -13,6 +13,7 @@ from langgraph.graph.state import CompiledStateGraph
 
 from think_only_once.agents.base import get_llm
 from think_only_once.config.settings import get_settings
+from think_only_once.enums import AgentEnum
 from think_only_once.prompts import get_prompt_text
 from think_only_once.tools.macro_tools import get_market_indices, search_geopolitical_news
 
@@ -30,6 +31,6 @@ def create_macro_analyst() -> CompiledStateGraph:
     return create_agent(
         model=llm,
         tools=tools,
-        system_prompt=get_prompt_text("macro_analyst"),
+        system_prompt=get_prompt_text(AgentEnum.MACRO_ANALYST),
         debug=settings.agents.verbose,
     )

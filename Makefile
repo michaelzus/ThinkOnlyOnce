@@ -86,8 +86,6 @@ lint:
 	@$(VENV_BIN)/flake8 src/ tests/ 2>&1 | tee $(LOGS_DIR)/lint.log
 	@echo "$(GREEN)Running pydocstyle...$(NC)"
 	@$(VENV_BIN)/pydocstyle src/ 2>&1 | tee -a $(LOGS_DIR)/lint.log
-	@echo "$(GREEN)Running darglint...$(NC)"
-	@$(VENV_BIN)/darglint src/ 2>&1 | tee -a $(LOGS_DIR)/lint.log || true
 	@echo "$(GREEN)Linting complete!$(NC)" | tee -a $(LOGS_DIR)/lint.log
 
 # Format code

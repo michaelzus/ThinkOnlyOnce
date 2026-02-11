@@ -38,11 +38,6 @@ jobs:
       run: |
         pydocstyle src/
     
-    - name: Run Darglint
-      run: |
-        darglint src/ || true
-      continue-on-error: true
-    
     - name: Run MyPy type checking
       run: |
         mypy src/

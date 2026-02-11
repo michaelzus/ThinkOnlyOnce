@@ -3,6 +3,7 @@
 from unittest.mock import MagicMock, patch
 
 from think_only_once.agents.macro_analyst import create_macro_analyst
+from think_only_once.enums import AgentEnum
 from think_only_once.prompts import get_prompt_text
 
 
@@ -36,21 +37,21 @@ class TestMacroAnalystPrompt:
 
     def test_prompt_contains_vix_interpretation(self) -> None:
         """Test that prompt includes VIX interpretation guidelines."""
-        prompt = get_prompt_text("macro_analyst")
+        prompt = get_prompt_text(AgentEnum.MACRO_ANALYST)
         assert "VIX Interpretation" in prompt
         assert "Below 15" in prompt
         assert "Above 30" in prompt
 
     def test_prompt_contains_fear_greed_interpretation(self) -> None:
         """Test that prompt includes Fear & Greed interpretation."""
-        prompt = get_prompt_text("macro_analyst")
+        prompt = get_prompt_text(AgentEnum.MACRO_ANALYST)
         assert "Fear & Greed Interpretation" in prompt
         assert "Extreme Fear" in prompt
         assert "Extreme Greed" in prompt
 
     def test_prompt_contains_spy_trend_guidance(self) -> None:
         """Test that prompt includes SPY trend guidance."""
-        prompt = get_prompt_text("macro_analyst")
+        prompt = get_prompt_text(AgentEnum.MACRO_ANALYST)
         assert "SPY Trend" in prompt
         assert "50D" in prompt
         assert "200D" in prompt
@@ -59,6 +60,6 @@ class TestMacroAnalystPrompt:
 
     def test_prompt_emphasizes_objectivity(self) -> None:
         """Test that prompt emphasizes data-driven objectivity."""
-        prompt = get_prompt_text("macro_analyst")
+        prompt = get_prompt_text(AgentEnum.MACRO_ANALYST)
         assert "objective" in prompt.lower()
         assert "data-driven" in prompt.lower()

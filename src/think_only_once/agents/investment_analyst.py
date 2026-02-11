@@ -3,6 +3,7 @@
 from langchain_core.prompts import ChatPromptTemplate
 
 from think_only_once.agents.base import get_llm
+from think_only_once.enums import AgentEnum
 from think_only_once.prompts import get_prompt_text
 
 
@@ -15,7 +16,7 @@ def create_investment_analyst_chain():
     llm = get_llm()
 
     prompt = ChatPromptTemplate.from_messages([
-        ("system", get_prompt_text("investment_analyst")),
+        ("system", get_prompt_text(AgentEnum.INVESTMENT_ANALYST)),
         ("human", "Generate an investment outlook for {ticker} based on the analysis above."),
     ])
 
